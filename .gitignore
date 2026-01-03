@@ -18,3 +18,9 @@ tm_research/.env
 tm_research/data/processed/train_processed.csv
 tm_research/data/processed/val_processed.csv
 *.csv
+# Tensor files
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.bin
