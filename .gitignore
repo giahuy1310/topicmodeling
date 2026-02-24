@@ -24,4 +24,11 @@ tm_research/data/processed/val_processed.csv
 *.ckpt
 *.safetensors
 *.bin
+emotion_classifier_model/model.safetensors
+*.safetensors
+.DS_Store
+tm_research/data/
+*.csv
+*.safetensors
+.env
 *.pdf
