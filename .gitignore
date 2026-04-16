@@ -32,3 +32,4 @@ tm_research/data/
 *.safetensors
 .env
 *.pdf
+tm_research/.env
