@@ -1,0 +1,26 @@
+
+TY  - JOUR
+T1  - A Study of Vietnamese Sentiment Classification with Ensemble Pre-Trained Language Models
+AU  - Thin, Dang Van
+AU  - Hao, Duong Ngoc
+AU  - Nguyen, Ngan Luu-Thuy
+Y1  - 2023/11/17
+PY  - 2023
+DA  - 2024/02/01
+N1  - doi: 10.1142/S2196888823500173
+DO  - 10.1142/S2196888823500173
+T2  - Vietnam Journal of Computer Science
+JF  - Vietnam Journal of Computer Science
+JO  - Vietnam J. Comp. Sci.
+SP  - 137
+EP  - 165
+VL  - 11
+IS  - 01
+PB  - World Scientific Publishing Co.
+N2  - Sentiment Analysis (SA) has attracted increasing research attention in recent years. Most existing works tackle the SA task by fine-tuning single pre-trained language models combined with specific layers. Despite their effectiveness, the previous studies overlooked the utilization of feature representations from various contextual language models. Ensemble learning techniques have garnered increasing attention within the field of Natural Language Processing (NLP). However, there is still room for improvement in ensemble models for the SA task, particularly in the aspect-level SA task. Furthermore, the utilization of heterogeneous ensembles, which combine various pre-trained transformer-based language models, may prove beneficial in enhancing overall performance by incorporating diverse linguistic representations. This paper introduces two ensemble models that leverage soft voting and feature fusion techniques by combining individual pre-trained transformer-based language models for the SA task. The latest transformer-based models, including PhoBERT, XLM, XLM-Align, InfoXLM, and viBERT_FPT, are employed to integrate knowledge and representations using feature fusion and a soft voting strategy. We conducted extensive experiments on various Vietnamese benchmark datasets, encompassing sentence-level, document-level, and aspect-level SA. The experimental results demonstrate that our approaches outperform most existing methods, achieving new state-of-the-art results with F1-weighted scores of 94.03%, 95.65%, 75.36%, and 76.23% on the UIT_VSFC, Aivivn, UIT_ABSA for the restaurant domain, and UIT_ViSFD datasets, respectively.
+AB  - Sentiment Analysis (SA) has attracted increasing research attention in recent years. Most existing works tackle the SA task by fine-tuning single pre-trained language models combined with specific layers. Despite their effectiveness, the previous studies overlooked the utilization of feature representations from various contextual language models. Ensemble learning techniques have garnered increasing attention within the field of Natural Language Processing (NLP). However, there is still room for improvement in ensemble models for the SA task, particularly in the aspect-level SA task. Furthermore, the utilization of heterogeneous ensembles, which combine various pre-trained transformer-based language models, may prove beneficial in enhancing overall performance by incorporating diverse linguistic representations. This paper introduces two ensemble models that leverage soft voting and feature fusion techniques by combining individual pre-trained transformer-based language models for the SA task. The latest transformer-based models, including PhoBERT, XLM, XLM-Align, InfoXLM, and viBERT_FPT, are employed to integrate knowledge and representations using feature fusion and a soft voting strategy. We conducted extensive experiments on various Vietnamese benchmark datasets, encompassing sentence-level, document-level, and aspect-level SA. The experimental results demonstrate that our approaches outperform most existing methods, achieving new state-of-the-art results with F1-weighted scores of 94.03%, 95.65%, 75.36%, and 76.23% on the UIT_VSFC, Aivivn, UIT_ABSA for the restaurant domain, and UIT_ViSFD datasets, respectively.
+SN  - 2196-8888
+M3  - doi: 10.1142/S2196888823500173
+UR  - https://doi.org/10.1142/S2196888823500173
+Y2  - 2026/04/19
+ER  - 
