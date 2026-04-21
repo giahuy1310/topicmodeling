@@ -48,6 +48,16 @@ class BertOOFConfig:
     early_stopping_patience: int = 2
     extra_tokenizer_kwargs: Dict[str, object] = field(default_factory=dict)
     extra_model_kwargs: Dict[str, object] = field(default_factory=dict)
+    # Advanced tuning (matches EmoModel_Advanced_XLMR.ipynb).
+    use_llrd: bool = True
+    llrd_decay: float = 0.95
+    classifier_lr_multiplier: float = 10.0
+    lr_scheduler_type: str = "cosine"
+    adam_beta1: float = 0.9
+    adam_beta2: float = 0.999
+    adam_epsilon: float = 1e-8
+    max_grad_norm: float = 1.0
+    metric_for_best_model: str = "f1_weighted"
 
 
 def _seed_everything(seed: int) -> None:
@@ -61,6 +71,88 @@ def _seed_everything(seed: int) -> None:
             torch.cuda.manual_seed_all(seed)
     except ImportError:
         pass
+
+
+_ENCODER_ATTRS = ("roberta", "bert", "xlm_roberta", "deberta", "electra")
+_NO_DECAY = ("bias", "LayerNorm.weight", "LayerNorm.bias")
+
+
+def _find_encoder(model):
+    """Return (encoder_attr_name, encoder_module) or (None, None) if not detected."""
+    for attr in _ENCODER_ATTRS:
+        enc = getattr(model, attr, None)
+        if enc is not None and hasattr(enc, "encoder") and hasattr(enc.encoder, "layer"):
+            return attr, enc
+    # Fallback: HF base_model shortcut.
+    base = getattr(model, "base_model", None)
+    if base is not None and hasattr(base, "encoder") and hasattr(base.encoder, "layer"):
+        for attr in _ENCODER_ATTRS:
+            if getattr(model, attr, None) is base:
+                return attr, base
+    return None, None
+
+
+def _llrd_param_groups(
+    model,
+    base_lr: float,
+    decay: float,
+    weight_decay: float,
+    classifier_lr_multiplier: float,
+    verbose: bool = True,
+):
+    """Build AdamW parameter groups with layer-wise LR decay.
+
+    Scheme mirrors EmoModel_Advanced_XLMR.ipynb:
+      - classifier/head params  -> base_lr * classifier_lr_multiplier
+      - encoder layer i         -> base_lr * decay^(num_layers - 1 - i)
+      - embeddings              -> base_lr * decay^num_layers
+    """
+    attr, encoder = _find_encoder(model)
+    if encoder is None:
+        if verbose:
+            print("[LLRD] encoder not detected; falling back to a flat learning rate")
+        return None
+
+    num_layers = len(encoder.encoder.layer)
+    embed_prefix = f"{attr}.embeddings."
+    layer_prefix = f"{attr}.encoder.layer."
+    head_lr = base_lr * classifier_lr_multiplier
+
+    # Bucket params by group.
+    buckets: Dict[float, Dict[str, list]] = {}
+
+    def _bucket(lr: float):
+        return buckets.setdefault(lr, {"decay": [], "no_decay": []})
+
+    for name, p in model.named_parameters():
+        if not p.requires_grad:
+            continue
+        is_no_decay = any(nd in name for nd in _NO_DECAY)
+        if name.startswith(embed_prefix):
+            lr = base_lr * (decay ** num_layers)
+        elif name.startswith(layer_prefix):
+            rest = name[len(layer_prefix):]
+            layer_idx = int(rest.split(".", 1)[0])
+            lr = base_lr * (decay ** (num_layers - 1 - layer_idx))
+        else:
+            # classifier head, pooler, any non-encoder top-level params
+            lr = head_lr
+        b = _bucket(lr)
+        (b["no_decay"] if is_no_decay else b["decay"]).append(p)
+
+    groups = []
+    for lr, b in buckets.items():
+        if b["decay"]:
+            groups.append({"params": b["decay"], "lr": lr, "weight_decay": weight_decay})
+        if b["no_decay"]:
+            groups.append({"params": b["no_decay"], "lr": lr, "weight_decay": 0.0})
+
+    if verbose:
+        print(
+            f"[LLRD] layers={num_layers} base_lr={base_lr:.2e} decay={decay} "
+            f"head_lr={head_lr:.2e} embed_lr={base_lr * (decay ** num_layers):.2e}"
+        )
+    return groups
 
 
 def _device_precision_flags(cfg: BertOOFConfig):
@@ -135,10 +227,21 @@ def _build_trainer(
         logits, labels = eval_pred
         preds = np.argmax(logits, axis=-1)
         acc = accuracy_score(labels, preds)
-        precision, recall, f1, _ = precision_recall_fscore_support(
+        p_macro, r_macro, f1_macro, _ = precision_recall_fscore_support(
+            labels, preds, average="macro", zero_division=0
+        )
+        p_w, r_w, f1_w, _ = precision_recall_fscore_support(
             labels, preds, average="weighted", zero_division=0
         )
-        return {"accuracy": acc, "precision": precision, "recall": recall, "f1": f1}
+        return {
+            "accuracy": acc,
+            "precision_macro": p_macro,
+            "recall_macro": r_macro,
+            "f1_macro": f1_macro,
+            "precision_weighted": p_w,
+            "recall_weighted": r_w,
+            "f1_weighted": f1_w,
+        }
 
     fp16, bf16 = _device_precision_flags(cfg)
     args = TrainingArguments(
@@ -150,11 +253,15 @@ def _build_trainer(
         learning_rate=cfg.learning_rate,
         weight_decay=cfg.weight_decay,
         warmup_ratio=cfg.warmup_ratio,
-        lr_scheduler_type="cosine",
+        lr_scheduler_type=cfg.lr_scheduler_type,
+        adam_beta1=cfg.adam_beta1,
+        adam_beta2=cfg.adam_beta2,
+        adam_epsilon=cfg.adam_epsilon,
+        max_grad_norm=cfg.max_grad_norm,
         eval_strategy="epoch",
         save_strategy="epoch",
         load_best_model_at_end=True,
-        metric_for_best_model="f1",
+        metric_for_best_model=cfg.metric_for_best_model,
         greater_is_better=True,
         save_total_limit=1,
         logging_steps=50,
@@ -165,15 +272,47 @@ def _build_trainer(
         data_seed=seed,
     )
 
-    trainer = Trainer(
-        model=model,
-        args=args,
-        train_dataset=train_ds,
-        eval_dataset=eval_ds,
-        tokenizer=tokenizer,
-        compute_metrics=compute_metrics,
-        callbacks=[EarlyStoppingCallback(early_stopping_patience=cfg.early_stopping_patience)],
-    )
+    class _LLRDTrainer(Trainer):
+        """Trainer that builds AdamW with LLRD parameter groups."""
+
+        def create_optimizer(self):
+            if self.optimizer is None:
+                groups = _llrd_param_groups(
+                    self.model,
+                    base_lr=cfg.learning_rate,
+                    decay=cfg.llrd_decay,
+                    weight_decay=cfg.weight_decay,
+                    classifier_lr_multiplier=cfg.classifier_lr_multiplier,
+                )
+                if groups is None:
+                    return super().create_optimizer()
+                self.optimizer = torch.optim.AdamW(
+                    groups,
+                    lr=cfg.learning_rate,
+                    betas=(cfg.adam_beta1, cfg.adam_beta2),
+                    eps=cfg.adam_epsilon,
+                    weight_decay=cfg.weight_decay,
+                )
+            return self.optimizer
+
+    import inspect
+
+    trainer_cls = _LLRDTrainer if cfg.use_llrd else Trainer
+    trainer_kwargs = {
+        "model": model,
+        "args": args,
+        "train_dataset": train_ds,
+        "eval_dataset": eval_ds,
+        "compute_metrics": compute_metrics,
+        "callbacks": [EarlyStoppingCallback(early_stopping_patience=cfg.early_stopping_patience)],
+    }
+    trainer_params = inspect.signature(Trainer.__init__).parameters
+    if "processing_class" in trainer_params:
+        trainer_kwargs["processing_class"] = tokenizer
+    elif "tokenizer" in trainer_params:
+        trainer_kwargs["tokenizer"] = tokenizer
+
+    trainer = trainer_cls(**trainer_kwargs)
     return trainer, tokenizer, eval_ds
 
 
@@ -308,6 +447,21 @@ def run_bert_oof(
         "num_val": int(len(val_df)),
         "num_test": int(len(test_df)),
         "elapsed_seconds": elapsed,
+        "tuning": {
+            "use_llrd": cfg.use_llrd,
+            "llrd_decay": cfg.llrd_decay,
+            "classifier_lr_multiplier": cfg.classifier_lr_multiplier,
+            "base_learning_rate": cfg.learning_rate,
+            "lr_scheduler_type": cfg.lr_scheduler_type,
+            "warmup_ratio": cfg.warmup_ratio,
+            "weight_decay": cfg.weight_decay,
+            "num_epochs": cfg.num_epochs,
+            "train_batch_size": cfg.train_batch_size,
+            "grad_accum_steps": cfg.grad_accum_steps,
+            "max_length": cfg.max_length,
+            "early_stopping_patience": cfg.early_stopping_patience,
+            "max_grad_norm": cfg.max_grad_norm,
+        },
     }
     save_metrics(cfg.output_name, metrics)
     print(f"[{cfg.output_name}] done in {elapsed/60:.1f} min — oof={oof_acc:.4f} val={val_acc:.4f} test={test_acc:.4f}")

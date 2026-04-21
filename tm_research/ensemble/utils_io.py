@@ -10,15 +10,26 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 
 DEFAULT_DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "processed"
-ARTIFACTS_DIR = Path(__file__).resolve().parent / "artifacts"
+
+PERSISTENT_ARTIFACTS_DIR = Path(
+    os.environ.get(
+        "TM_ENSEMBLE_PERSISTENT_ARTIFACTS_DIR",
+        str(Path(__file__).resolve().parent / "artifacts"),
+    )
+)
+
+ARTIFACTS_DIR = Path(
+    os.environ.get("TM_ENSEMBLE_ARTIFACTS_DIR", str(PERSISTENT_ARTIFACTS_DIR))
+)
 PROBS_DIR = ARTIFACTS_DIR / "probs"
 META_JSONL_DIR = ARTIFACTS_DIR / "meta_jsonl"
 METRICS_DIR = ARTIFACTS_DIR / "metrics"
@@ -147,3 +158,73 @@ def save_metrics(model_name: str, payload: dict) -> Path:
 def load_metrics(model_name: str) -> dict:
     with open(METRICS_DIR / f"{model_name}.json", "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def _copy_tree(src: Path, dst: Path, *, newer_only: bool, verbose: bool) -> int:
+    if not src.exists():
+        if verbose:
+            print(f"[utils_io] skip: {src} does not exist")
+        return 0
+    dst.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for srcp in src.rglob("*"):
+        if srcp.is_dir():
+            continue
+        rel = srcp.relative_to(src)
+        dstp = dst / rel
+        if newer_only and dstp.exists():
+            try:
+                if dstp.stat().st_mtime >= srcp.stat().st_mtime and dstp.stat().st_size == srcp.stat().st_size:
+                    continue
+            except OSError:
+                pass
+        dstp.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(srcp, dstp)
+        n += 1
+    return n
+
+
+def push_artifacts_to_persistent(verbose: bool = True) -> Optional[Path]:
+    """Copy current ``ARTIFACTS_DIR`` → ``PERSISTENT_ARTIFACTS_DIR``.
+
+    Run this at the end of a Colab notebook so results on local scratch
+    (``/content/...``) are persisted to Drive. No-op if the two paths resolve
+    to the same directory.
+    """
+
+    src, dst = ARTIFACTS_DIR, PERSISTENT_ARTIFACTS_DIR
+    try:
+        same = src.resolve() == dst.resolve()
+    except OSError:
+        same = str(src) == str(dst)
+    if same:
+        if verbose:
+            print(f"[utils_io] push skipped: ARTIFACTS_DIR == PERSISTENT_ARTIFACTS_DIR ({src})")
+        return None
+    n = _copy_tree(src, dst, newer_only=False, verbose=verbose)
+    if verbose:
+        print(f"[utils_io] pushed {n} files: {src} -> {dst}")
+    return dst
+
+
+def pull_artifacts_from_persistent(verbose: bool = True) -> Optional[Path]:
+    """Copy ``PERSISTENT_ARTIFACTS_DIR`` → ``ARTIFACTS_DIR`` (newer files only).
+
+    Called by ``colab_setup.setup_colab`` at session start so a fresh Colab
+    VM can see artifacts produced by earlier runs (e.g. notebook 05 reading
+    OOF probs written by 01..04 last week).
+    """
+
+    src, dst = PERSISTENT_ARTIFACTS_DIR, ARTIFACTS_DIR
+    try:
+        same = src.resolve() == dst.resolve()
+    except OSError:
+        same = str(src) == str(dst)
+    if same:
+        if verbose:
+            print(f"[utils_io] pull skipped: ARTIFACTS_DIR == PERSISTENT_ARTIFACTS_DIR ({src})")
+        return None
+    n = _copy_tree(src, dst, newer_only=True, verbose=verbose)
+    if verbose:
+        print(f"[utils_io] pulled {n} files: {src} -> {dst}")
+    return dst

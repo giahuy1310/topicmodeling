@@ -39,6 +39,8 @@ class ColabPaths:
     hf_cache: Path
     bert_work: Path
     lora_work: Path
+    artifacts: Path
+    persistent_artifacts: Path
     is_colab: bool
 
     def as_dict(self) -> dict:
@@ -48,6 +50,8 @@ class ColabPaths:
             "hf_cache": str(self.hf_cache),
             "bert_work": str(self.bert_work),
             "lora_work": str(self.lora_work),
+            "artifacts": str(self.artifacts),
+            "persistent_artifacts": str(self.persistent_artifacts),
             "is_colab": self.is_colab,
         }
 
@@ -88,6 +92,7 @@ def setup_colab(
     tmp_root: str | os.PathLike = DEFAULT_TMP_ROOT,
     require_repo: bool = True,
     load_hf_token: bool = True,
+    pull_artifacts: bool = True,
 ) -> ColabPaths:
     """Prepare Colab so Drive holds artifacts and ``/content`` holds scratch.
 
@@ -119,10 +124,20 @@ def setup_colab(
     hf_cache = tmp_path / "hf_cache"
     bert_work = tmp_path / "bert_work"
     lora_work = tmp_path / "lora_work"
+    local_artifacts = tmp_path / "artifacts"
+    persistent_artifacts = repo_path / "tm_research" / "ensemble" / "artifacts"
 
     for p in (hf_cache, bert_work, lora_work):
         if is_colab or tmp_path.exists():
             p.mkdir(parents=True, exist_ok=True)
+
+    if is_colab:
+        local_artifacts.mkdir(parents=True, exist_ok=True)
+        os.environ["TM_ENSEMBLE_ARTIFACTS_DIR"] = str(local_artifacts)
+        os.environ["TM_ENSEMBLE_PERSISTENT_ARTIFACTS_DIR"] = str(persistent_artifacts)
+        artifacts_in_use = local_artifacts
+    else:
+        artifacts_in_use = persistent_artifacts
 
     if is_colab:
         os.environ["HF_HOME"] = str(hf_cache)
@@ -143,17 +158,29 @@ def setup_colab(
     if load_hf_token:
         _maybe_load_hf_token()
 
+    if is_colab and pull_artifacts:
+        try:
+            from tm_research.ensemble.utils_io import pull_artifacts_from_persistent
+
+            pull_artifacts_from_persistent(verbose=True)
+        except Exception as exc:
+            print(f"[colab_setup] artifact pull skipped ({type(exc).__name__}: {exc})")
+
     paths = ColabPaths(
         repo_root=repo_path,
         tmp_root=tmp_path,
         hf_cache=hf_cache,
         bert_work=bert_work,
         lora_work=lora_work,
+        artifacts=artifacts_in_use,
+        persistent_artifacts=persistent_artifacts,
         is_colab=is_colab,
     )
     print(f"[colab_setup] is_colab={is_colab}")
     print(f"[colab_setup] repo_root={repo_path}")
     print(f"[colab_setup] tmp_root={tmp_path} (hf_cache/bert_work/lora_work)")
+    print(f"[colab_setup] artifacts={artifacts_in_use}")
+    print(f"[colab_setup] persistent_artifacts={persistent_artifacts}")
     if is_colab:
         hf = "set" if os.environ.get("HF_TOKEN") else "NOT set"
         print(f"[colab_setup] HF_TOKEN: {hf}")
