@@ -18,6 +18,7 @@ from typing import Dict, Optional
 
 import numpy as np
 import pandas as pd
+from sklearn.metrics import accuracy_score, recall_score, f1_score
 
 from .utils_io import (
     LabelMap,
@@ -389,7 +390,11 @@ def run_bert_oof(
         seed=cfg.seed,
     )
     save_probs(cfg.output_name, "oof", oof_probs)
-    oof_acc = float((oof_probs.argmax(axis=1) == train_labels).mean())
+    oof_pred = oof_probs.argmax(axis=1)
+    oof_acc = float(accuracy_score(train_labels, oof_pred))
+    oof_recall = float(recall_score(train_labels, oof_pred, average="macro", zero_division=0))
+    oof_f1 = float(f1_score(train_labels, oof_pred, average="macro", zero_division=0))
+    oof_f1_weighted = float(f1_score(train_labels, oof_pred, average="weighted", zero_division=0))
 
     print(f"[{cfg.output_name}] refitting on full train and predicting val/test")
     val_labels = val_df["label"].map(label_map.label2id).to_numpy()
@@ -410,7 +415,11 @@ def run_bert_oof(
     trainer.train()
     val_probs = _predict_probs(trainer, val_ds)
     save_probs(cfg.output_name, "val", val_probs)
-    val_acc = float((val_probs.argmax(axis=1) == val_labels).mean())
+    val_pred = val_probs.argmax(axis=1)
+    val_acc = float(accuracy_score(val_labels, val_pred))
+    val_recall = float(recall_score(val_labels, val_pred, average="macro", zero_division=0))
+    val_f1 = float(f1_score(val_labels, val_pred, average="macro", zero_division=0))
+    val_f1_weighted = float(f1_score(val_labels, val_pred, average="weighted", zero_division=0))
 
     from datasets import Dataset
 
@@ -431,7 +440,11 @@ def run_bert_oof(
     test_ds_only = test_ds_only.map(_tok_fn, batched=True)
     test_probs = _predict_probs(trainer, test_ds_only)
     save_probs(cfg.output_name, "test", test_probs)
-    test_acc = float((test_probs.argmax(axis=1) == test_labels).mean())
+    test_pred = test_probs.argmax(axis=1)
+    test_acc = float(accuracy_score(test_labels, test_pred))
+    test_recall = float(recall_score(test_labels, test_pred, average="macro", zero_division=0))
+    test_f1 = float(f1_score(test_labels, test_pred, average="macro", zero_division=0))
+    test_f1_weighted = float(f1_score(test_labels, test_pred, average="weighted", zero_division=0))
 
     elapsed = time.time() - t0
     metrics = {
@@ -441,8 +454,17 @@ def run_bert_oof(
         "n_folds": cfg.n_folds,
         "fold_val_accuracies": fold_accs,
         "oof_accuracy": oof_acc,
+        "oof_recall": oof_recall,
+        "oof_f1": oof_f1,
+        "oof_f1_weighted": oof_f1_weighted,
         "val_accuracy": val_acc,
+        "val_recall": val_recall,
+        "val_f1": val_f1,
+        "val_f1_weighted": val_f1_weighted,
         "test_accuracy": test_acc,
+        "test_recall": test_recall,
+        "test_f1": test_f1,
+        "test_f1_weighted": test_f1_weighted,
         "num_train": int(len(train_texts)),
         "num_val": int(len(val_df)),
         "num_test": int(len(test_df)),
