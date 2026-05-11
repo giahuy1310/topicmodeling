@@ -44,6 +44,70 @@ The `tm_research/ensemble` directory includes staged notebooks and utilities:
 - `07_evaluate_ensemble.ipynb`
 - `utils_io.py` and related helpers
 
+## Experimental results (notebook / thesis)
+
+The numbers below are the **reported results** from the thesis write-up (`Documents/Thesis.md`, Chapter 4: Experiments and Results), which corresponds to the ensemble and augmentation experiments implemented in this repository’s notebooks.
+
+### Baseline BERT models (original UIT-VSMEC, averaged over five seeds)
+
+
+| Model            | Accuracy | Weighted F1 |
+| ---------------- | -------- | ----------- |
+| PhoBERT v2-Large | 0.6075   | 0.602       |
+| ViBERT           | 0.6106   | 0.6101      |
+| CafeBERT         | 0.6344   | 0.628       |
+| XLM-RoBERTa      | 0.5691   | 0.5574      |
+
+
+CafeBERT is used as the primary model for augmentation experiments.
+
+### Minority-class F1 (Fear, Anger, Surprise) with CafeBERT and Gemini-2.5-Flash augmentation
+
+
+| Setting     | Fear | Anger | Surprise |
+| ----------- | ---- | ----- | -------- |
+| Original    | 67%  | 38%   | 60%      |
+| Paraphrased | 67%  | 42%   | 61%      |
+| Generated   | 68%  | 46%   | 61%      |
+
+
+### CafeBERT robustness (original vs. augmented training)
+
+
+| Training data         | Accuracy | Weighted F1 |
+| --------------------- | -------- | ----------- |
+| Original              | 0.6344   | 0.628       |
+| Paraphrased augmented | 0.6676   | 0.6682      |
+| Generated augmented   | 0.6703   | 0.671       |
+
+
+### BERT models trained on augmented data (test set)
+
+
+| Model    | Test accuracy | Test F1 (weighted) |
+| -------- | ------------- | ------------------ |
+| CafeBERT | 0.6703        | 0.671              |
+| PhoBERT  | 0.6378        | 0.633              |
+| ViBERT   | 0.6387        | 0.6375             |
+| XLM-R    | 0.6214        | 0.6227             |
+
+
+### Ensemble vs. baselines (UIT-VSMEC; thesis Table 12)
+
+
+| Method                                                               | Accuracy   | Weighted F1 |
+| -------------------------------------------------------------------- | ---------- | ----------- |
+| **Stacked ensemble + Gemma meta-model (thesis: “Genma”) (OUR WORK)** | **0.7023** | **0.7022**  |
+| CafeBERT + augmented data                                            | 0.6676     | 0.6682      |
+| Gemma zero-shot prompting                                            | 0.6864     | 0.6809      |
+| MLR + preprocessing + key-clause extraction                          | 0.6436     | 0.6440      |
+| CafeBERT (prior work, thesis ref.)                                   | —          | 0.6612      |
+| VisoBERT (prior work, thesis ref.)                                   | 0.6810     | 0.6837      |
+| XLM-R-Large (prior work, thesis ref.)                                | 0.6137     | 0.6020      |
+
+
+Narrative discussion, non-transformer baselines (Tables 9–10), and evaluation metrics setup are in `Documents/Thesis.md` (Chapter 4–5 and abstract).
+
 ## Supporting / Experimental Work
 
 These are still useful but are **not the main project direction**:
@@ -68,15 +132,14 @@ python -m venv .venv
 source ./.venv/bin/activate
 ```
 
-2. Install dependencies:
+1. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Configure `.env` (for Gemini/LangChain workflows if needed).
-
-4. Run a sample pipeline:
+1. Configure `.env` (for Gemini/LangChain workflows if needed).
+2. Run a sample pipeline:
 
 ```bash
 python -m tm_research.cli run --query "quantum computing benchmarks" --num-results 10 --num-topics 8
@@ -118,3 +181,4 @@ requirements.txt
 
 - Ensemble learning is the canonical direction for this project.
 - Other notebooks/modules are preserved as experiments, baselines, or legacy references.
+
