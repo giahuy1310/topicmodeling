@@ -241,5 +241,7 @@ These fields support auditing generated samples and downstream filtering.
 
 Primary outputs used in notebook:
 
-- `train_balanced_optimized.csv` (combined original + augmented)
+- `train_balanced_optimized.csv` (combined original + augmented, all columns)
+- `train_1500_gen_eval.csv` (same rows after `emotion_vn` fix, with trace columns for fidelity eval)
+- `train_1500_gen_clean.csv` (training-ready: `Emotion`, `Sentence`, `emotion_vn`; trace columns dropped)
 - `test_gen_clean.csv` (cleaned export with selected columns)

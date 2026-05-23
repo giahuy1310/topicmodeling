@@ -9,13 +9,13 @@ Drive with gigabytes of throwaway files.
 Typical first cell on Colab::
 
     import sys, os
-    REPO_ROOT = '/content/drive/MyDrive/thesis/topicmodeling'
+    REPO_ROOT = '/content/drive/MyDrive/thesis/topicmodeling/tm_research'
     if 'google.colab' in sys.modules:
         from google.colab import drive
         if not os.path.ismount('/content/drive'):
             drive.mount('/content/drive')
     if REPO_ROOT not in sys.path:
-        sys.path.insert(0, REPO_ROOT)
+        sys.path.append(REPO_ROOT)  # append avoids Drive-first importlib probes (Colab FUSE errno 107)
     from tm_research.ensemble.colab_setup import setup_colab
     paths = setup_colab(repo_root=REPO_ROOT)
 """
@@ -28,7 +28,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-DEFAULT_REPO_ROOT = "/content/drive/MyDrive/thesis/topicmodeling"
+DEFAULT_REPO_ROOT = "/content/drive/MyDrive/thesis/topicmodeling/tm_research"
 DEFAULT_TMP_ROOT = "/content/ensemble_tmp"
 
 
@@ -87,6 +87,23 @@ def _maybe_load_hf_token() -> None:
         pass
 
 
+def _resolve_project_paths(repo_path: Path) -> tuple[Path, Path]:
+    """Return (import_root, persistent_artifacts) for either repo layout.
+
+    Supported inputs:
+    - <...>/topicmodeling
+    - <...>/topicmodeling/tm_research
+    """
+
+    if repo_path.name == "tm_research":
+        import_root = repo_path.parent
+        persistent_artifacts = repo_path / "ensemble" / "artifacts"
+    else:
+        import_root = repo_path
+        persistent_artifacts = repo_path / "tm_research" / "ensemble" / "artifacts"
+    return import_root, persistent_artifacts
+
+
 def setup_colab(
     repo_root: str | os.PathLike = DEFAULT_REPO_ROOT,
     tmp_root: str | os.PathLike = DEFAULT_TMP_ROOT,
@@ -125,7 +142,7 @@ def setup_colab(
     bert_work = tmp_path / "bert_work"
     lora_work = tmp_path / "lora_work"
     local_artifacts = tmp_path / "artifacts"
-    persistent_artifacts = repo_path / "tm_research" / "ensemble" / "artifacts"
+    import_root, persistent_artifacts = _resolve_project_paths(repo_path)
 
     for p in (hf_cache, bert_work, lora_work):
         if is_colab or tmp_path.exists():
@@ -145,15 +162,18 @@ def setup_colab(
         os.environ["TRANSFORMERS_CACHE"] = str(hf_cache)
         os.environ.setdefault("WANDB_MODE", "disabled")
         os.environ.setdefault("TRANSFORMERS_NO_ADVISORY_WARNINGS", "1")
-        if str(repo_path) not in sys.path:
-            sys.path.insert(0, str(repo_path))
+        # Append repo (do not insert(0,...)): importlib would probe Drive before
+        # site-packages; a flaky Google Drive FUSE often raises OSError 107.
+        if str(import_root) not in sys.path:
+            sys.path.append(str(import_root))
+        # Keep cwd off Drive so sys.path's '' does not resolve through FUSE on imports.
         try:
-            os.chdir(repo_path)
+            os.chdir(str(tmp_path))
         except FileNotFoundError:
             pass
     else:
-        if repo_path.exists() and str(repo_path) not in sys.path:
-            sys.path.insert(0, str(repo_path))
+        if repo_path.exists() and str(import_root) not in sys.path:
+            sys.path.insert(0, str(import_root))
 
     if load_hf_token:
         _maybe_load_hf_token()

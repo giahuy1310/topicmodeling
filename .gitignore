@@ -33,3 +33,11 @@ tm_research/data/
 .env
 *.pdf
 tm_research/.env
+
+#Ignore all files in the data folder
+tm_research/data/
+
+#Ignore all files in the artifacts folder
+tm_research/ensemble/artifacts/
+
+
