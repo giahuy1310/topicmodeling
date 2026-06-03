@@ -34,7 +34,7 @@ class BertOOFConfig:
     model_name: str
     output_name: str
     seed: int = 42
-    n_folds: int = 5
+    n_folds: int = 3
     num_epochs: int = 6
     learning_rate: float = 2e-5
     weight_decay: float = 0.01

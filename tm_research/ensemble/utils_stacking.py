@@ -34,7 +34,7 @@ def kfold_oof_probs(
     X: Sequence,
     y: np.ndarray,
     num_classes: int,
-    n_splits: int = 5,
+    n_splits: int = 3,
     seed: int = 42,
 ) -> Tuple[np.ndarray, List[float]]:
     """Compute OOF probabilities via stratified K-fold.

@@ -18,7 +18,7 @@ Vietnamese emotion classification using a **stacked ensemble**: five heterogeneo
           │                                                     │
           │  PhoBERT   CafeBERT   ViBERT   LogReg   LinearSVC  │
           │     ↓          ↓        ↓        ↓         ↓       │
-          │  5-fold OOF probabilities  (N_train × C)           │
+          │  3-fold OOF probabilities  (N_train × C)           │
           │  full-train refit val/test probs (N × C)           │
           └─────────────────────────┬───────────────────────────┘
                                     │
@@ -159,7 +159,7 @@ Metrics: accuracy, macro recall, macro F1, weighted F1, per-class F1, confusion 
 | `model_name` | varies per notebook | HuggingFace checkpoint to fine-tune |
 | `output_name` | `phobert` / `cafebert` / `vibert` | Prefix for all saved artifact files |
 | `seed` | random (drawn fresh each run) | Controls fold splits, weight init, data shuffling |
-| `n_folds` | `5` | Number of stratified K-fold splits for OOF |
+| `n_folds` | `3` | Number of stratified K-fold splits for OOF |
 | `num_epochs` | `20` | Maximum fine-tuning epochs per fold and full-train refit |
 | `learning_rate` | `2e-5` | AdamW peak learning rate |
 | `lr_scheduler_type` | `"cosine"` | LR decay schedule after warmup |
@@ -196,7 +196,7 @@ Metrics: accuracy, macro recall, macro F1, weighted F1, per-class F1, confusion 
 | **CalibratedClassifierCV** `method` | `"sigmoid"` | Platt scaling for probability calibration |
 | **CalibratedClassifierCV** `cv` | `3` | Inner CV folds used to fit the calibrator |
 | `SEED` | `123` | Fixed random seed for sklearn models |
-| `N_FOLDS` | `5` | Stratified K-fold splits |
+| `N_FOLDS` | `3` | Stratified K-fold splits |
 
 ---
 

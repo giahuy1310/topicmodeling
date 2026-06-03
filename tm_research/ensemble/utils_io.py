@@ -39,6 +39,11 @@ TRAIN_FILE = "train_1500_final.csv"
 VAL_FILE = "val_final.csv"
 TEST_FILE = "test_final.csv"
 
+VSFC_DATA_DIR = DEFAULT_DATA_DIR / "vsfc"
+VSFC_TRAIN_FILE = "vsfc_train_final.csv"
+VSFC_VAL_FILE = "vsfc_val_final.csv"
+VSFC_TEST_FILE = "vsfc_test_final.csv"
+
 TEXT_CANDIDATES = ("Sentence_clean", "Sentence", "text")
 LABEL_CANDIDATES = ("Emotion", "label")
 
@@ -108,6 +113,49 @@ def load_splits(
 
     _ensure_dirs()
     with open(ARTIFACTS_DIR / "label_map.json", "w", encoding="utf-8") as f:
+        json.dump(
+            {"label2id": label2id, "id2label": {str(k): v for k, v in id2label.items()}},
+            f,
+            ensure_ascii=False,
+            indent=2,
+        )
+
+    return train_df, val_df, test_df, LabelMap(label2id=label2id, id2label=id2label)
+
+
+def load_vsfc_splits(
+    data_dir: str | os.PathLike | None = None,
+    train_file: str = VSFC_TRAIN_FILE,
+    val_file: str = VSFC_VAL_FILE,
+    test_file: str = VSFC_TEST_FILE,
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, LabelMap]:
+    """Load preprocessed UIT-VSFC train/val/test as ``(text, label)`` DataFrames.
+
+    Expects the CSVs exported by ``VSFC_DataPreprocessing.ipynb`` under
+    ``data/processed/vsfc/``.  The label map is built from sorted unique labels
+    in the training set (``negative``, ``neutral``, ``positive``) and written to
+    ``data/processed/vsfc/label_map.json``.
+
+    Parameters
+    ----------
+    data_dir : path to the ``vsfc/`` directory; defaults to
+        ``tm_research/data/processed/vsfc/``.
+    """
+    base = Path(data_dir) if data_dir is not None else VSFC_DATA_DIR
+    train_df = _normalize(pd.read_csv(base / train_file))
+    val_df = _normalize(pd.read_csv(base / val_file))
+    test_df = _normalize(pd.read_csv(base / test_file))
+
+    labels = sorted(train_df["label"].unique().tolist())
+    label2id = {lab: i for i, lab in enumerate(labels)}
+    id2label = {i: lab for lab, i in label2id.items()}
+
+    val_df = val_df[val_df["label"].isin(label2id)].reset_index(drop=True)
+    test_df = test_df[test_df["label"].isin(label2id)].reset_index(drop=True)
+
+    lmap_path = base / "label_map.json"
+    lmap_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(lmap_path, "w", encoding="utf-8") as f:
         json.dump(
             {"label2id": label2id, "id2label": {str(k): v for k, v in id2label.items()}},
             f,
