@@ -99,22 +99,45 @@ Two classical models (LogReg, LinearSVC) share the same TF-IDF pipeline and run 
    ```
    w_i = val_acc_i / Σ_j val_acc_j
    ```
-3. Formats a structured-token prompt for every example in train / val / test:
+3. Builds the system prompt via `build_meta_system_prompt` (includes label legend, model legend, and weights) and saves it to `weights.json`.
+4. Formats a structured-token prompt for every example in train / val / test (**compact_v1 schema**):
    ```
    [TEXT] … [/TEXT]
+   [WEIGHTED_AVG]{A=0.66,D=0.30,J=0.01,F=0.01,O=0.01,Sa=0.01,Su=0.00}[/WEIGHTED_AVG]
    [STACK]
-   <phobert w=0.205>{joy=0.910, sadness=0.040, …}
-   <cafebert w=0.198>…
-   …
+   p:{A=0.85,D=0.14,J=0.00,F=0.00,O=0.00,Sa=0.00,Su=0.00}
+   c:{…}
+   v:{…}
+   l:{…}
+   s:{…}
    [/STACK]
-   [WEIGHTED_AVG]{joy=0.870, …}[/WEIGHTED_AVG]
    ```
-   - **Train** rows use **OOF probs** (never seen by the model that produced them).
-   - **Val / Test** rows use full-train-refit probs.
+   Key design decisions:
+   - **`[WEIGHTED_AVG]` before `[STACK]`** — preserves the fusion summary even if a low `max_length` cap truncates the stack tail.
+   - **No per-line `w=` weights** — model/label weights are stated once in the system prompt.
+   - **Abbreviated model keys** (`p/c/v/l/s`) and **abbreviated label keys** (`A/D/J/F/O/Sa/Su`, 2 decimals) — reduces token count by ~100–150 vs the legacy verbose schema.
+   - **Train** rows use **OOF probs**; **Val / Test** rows use full-train-refit probs.
    - Train and val rows include the gold `<label>EMOTION</label>` completion for SFT; test rows store the gold in a separate `gold` field.
 
+   **Abbreviation legends (in system prompt):**
+
+   | Abbreviation | Full name |
+   |---|---|
+   | `A` | Anger |
+   | `D` | Disgust |
+   | `J` | Enjoyment |
+   | `F` | Fear |
+   | `O` | Other |
+   | `Sa` | Sadness |
+   | `Su` | Surprise |
+   | `p` | phobert |
+   | `c` | cafebert |
+   | `v` | vibert |
+   | `l` | logreg |
+   | `s` | svc |
+
 **Artifacts produced:**
-- `artifacts/weights.json`
+- `artifacts/weights.json` (now also contains `system_prompt` and `prompt_schema`)
 - `artifacts/meta_jsonl/train.jsonl`
 - `artifacts/meta_jsonl/val.jsonl`
 - `artifacts/meta_jsonl/test.jsonl`
@@ -125,9 +148,11 @@ Two classical models (LogReg, LinearSVC) share the same TF-IDF pipeline and run 
 
 Gemma-2-9B-it is loaded in **4-bit NF4** quantization and fitted with a LoRA adapter using `SFTTrainer` (TRL). The loss is restricted to the assistant span only (`completion_only_loss=True`), so the model learns only to produce `<label>EMOTION</label>`.
 
+The system prompt is loaded from `weights.json` (written by notebook 05); if absent it is built at runtime via `build_meta_system_prompt`. Default settings: `MAX_SEQ_LEN=800`, `per_device_train_batch_size=8`, `gradient_accumulation_steps=4` (effective batch 32).
+
 **Artifacts produced:**
 - `artifacts/lora_adapter/` — LoRA adapter weights + tokenizer
-- `artifacts/lora_train_meta.json` — training metadata
+- `artifacts/lora_train_meta.json` — training metadata (includes `prompt_schema`, `system_prompt`, `max_seq_len`, `prompt_prob_decimals`)
 
 ---
 
@@ -170,7 +195,7 @@ Metrics: accuracy, macro recall, macro F1, weighted F1, per-class F1, confusion 
 | `grad_accum_steps` | `2` | Gradient accumulation steps (effective batch = 32 × 2 = 64) |
 | `max_length` | `256` | Tokenizer truncation / padding length |
 | `early_stopping_patience` | `5` | Stop if monitored metric does not improve for this many epochs |
-| `metric_for_best_model` | `"f1"` | Metric used by `EarlyStoppingCallback` and checkpoint selection |
+| `metric_for_best_model` | `"f1_macro"` | Key from `compute_metrics` (Trainer reports `eval_f1_macro`) |
 | `max_grad_norm` | `1.0` | Gradient clipping threshold |
 | `adam_beta1` | `0.9` | AdamW first-moment decay |
 | `adam_beta2` | `0.999` | AdamW second-moment decay |
@@ -239,8 +264,8 @@ Three strategies are implemented in `utils_stacking.py`; notebook 05 uses `compu
 | Parameter | Value | Meaning |
 |-----------|-------|---------|
 | `num_train_epochs` | `2` | Short fine-tune to avoid over-fitting the small JSONL dataset |
-| `per_device_train_batch_size` | `16` | Sequences per GPU per step |
-| `gradient_accumulation_steps` | `2` | Effective batch size = 32 |
+| `per_device_train_batch_size` | `8` | Sequences per GPU per step |
+| `gradient_accumulation_steps` | `4` | Effective batch size = 32 |
 | `learning_rate` | `1e-4` | Higher than BERT fine-tuning because only LoRA params are trained |
 | `lr_scheduler_type` | `"cosine"` | Cosine decay |
 | `warmup_ratio` | `0.1` | Linear warmup for first 10 % of steps |
@@ -248,7 +273,7 @@ Three strategies are implemented in `utils_stacking.py`; notebook 05 uses `compu
 | `bf16` | `True` | bfloat16 training |
 | `packing` | `False` | Each sample is padded independently (avoids cross-contamination) |
 | `completion_only_loss` | `True` | Cross-entropy loss applied only to the `<label>…</label>` span |
-| `MAX_SEQ_LEN` | `1024` | Maximum token length per example |
+| `MAX_SEQ_LEN` | `800` | Maximum token length; covers all compact_v1 prompts including outlier rows (max SFT ~738) |
 
 **Inference (notebook 07):**
 

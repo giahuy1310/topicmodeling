@@ -20,6 +20,37 @@ BASE_MODEL_NAMES: Tuple[str, ...] = (
     "svc",
 )
 
+# ---------------------------------------------------------------------------
+# Compact prompt schema (compact_v1)
+# ---------------------------------------------------------------------------
+
+PROMPT_SCHEMA_VERSION = "compact_v1"
+PROMPT_PROB_DECIMALS = 2
+
+# Long model name → single-char abbreviation used in stack lines.
+MODEL_ABBR: Dict[str, str] = {
+    "phobert": "p",
+    "cafebert": "c",
+    "vibert": "v",
+    "logreg": "l",
+    "svc": "s",
+}
+
+# Emotion label → short abbreviation used inside prob dicts.
+# Full names are kept in completions (<label>Anger</label>) and system legends.
+LABEL_ABBR: Dict[str, str] = {
+    "Anger": "A",
+    "Disgust": "D",
+    "Enjoyment": "J",
+    "Fear": "F",
+    "Other": "O",
+    "Sadness": "Sa",
+    "Surprise": "Su",
+}
+
+# Reverse mapping (abbr → full name).
+ABBR_TO_LABEL: Dict[str, str] = {v: k for k, v in LABEL_ABBR.items()}
+
 
 @dataclass
 class StackedRow:
@@ -156,6 +187,55 @@ def _format_prob_dict(probs: np.ndarray, label_map: LabelMap, decimals: int = 3)
     return "{" + ", ".join(parts) + "}"
 
 
+def _format_prob_dict_compact(
+    probs: np.ndarray,
+    label_map: LabelMap,
+    decimals: int = PROMPT_PROB_DECIMALS,
+) -> str:
+    """Compact prob dict using abbreviated label names, no spaces.
+
+    Example: ``{A=0.66,D=0.30,J=0.01,F=0.01,O=0.01,Sa=0.01,Su=0.00}``
+    Falls back to full label name if no abbreviation defined.
+    """
+    parts = [
+        f"{LABEL_ABBR.get(label_map.id2label[i], label_map.id2label[i])}={probs[i]:.{decimals}f}"
+        for i in range(label_map.num_classes)
+    ]
+    return "{" + ",".join(parts) + "}"
+
+
+def build_meta_system_prompt(label_map: LabelMap, weights: Dict[str, float]) -> str:
+    """Build the system prompt for the compact_v1 schema.
+
+    Includes label legend, model legend, and per-model weights so this
+    information does not need to be repeated on every user turn.
+    """
+    full_names = label_map.class_names
+    label_legend = ", ".join(
+        f"{LABEL_ABBR.get(n, n)}={n}" for n in full_names
+    )
+    model_legend = ", ".join(
+        f"{MODEL_ABBR.get(m, m)}={m}" for m in BASE_MODEL_NAMES if m in MODEL_ABBR
+    )
+    weight_str = ", ".join(
+        f"{MODEL_ABBR.get(m, m)}={weights[m]:.3f}"
+        for m in BASE_MODEL_NAMES
+        if m in weights
+    )
+    class_list = ", ".join(full_names)
+    return (
+        "You are an emotion classifier for Vietnamese social-media text. "
+        f"Pick exactly one label from: {class_list}. "
+        "You receive: [TEXT] the input sentence [/TEXT], "
+        "then [WEIGHTED_AVG] the weighted-average probability over all base models [/WEIGHTED_AVG], "
+        "then [STACK] per-model probabilities [/STACK]. "
+        f"Label abbreviations: {label_legend}. "
+        f"Model abbreviations: {model_legend}. "
+        f"Model weights (higher = more reliable on validation): {weight_str}. "
+        "Output ONLY the final answer in the exact format: <label>LABEL</label>."
+    )
+
+
 def format_prompt(
     text: str,
     probs_per_model: Dict[str, np.ndarray],
@@ -164,32 +244,49 @@ def format_prompt(
     label: Optional[str] = None,
     model_order: Iterable[str] = BASE_MODEL_NAMES,
 ) -> Dict[str, str]:
-    """Render one stacked example as ``{prompt, completion}``.
+    """Render one stacked example as ``{prompt, completion}`` (compact_v1 schema).
 
-    Prompt schema (structured tokens, same for train/val/test):
+    Prompt schema (train/val/test):
 
         [TEXT] ... [/TEXT]
+        [WEIGHTED_AVG]{A=0.66,D=0.30,...}[/WEIGHTED_AVG]
         [STACK]
-        <phobert w=0.205>{joy=0.910, ...}
-        ...
+        p:{A=0.85,D=0.14,...}
+        c:{...}
+        v:{...}
+        l:{...}
+        s:{...}
         [/STACK]
-        [WEIGHTED_AVG]{joy=0.870, ...}[/WEIGHTED_AVG]
+
+    [WEIGHTED_AVG] is emitted before [STACK] so it is preserved even when a
+    low ``max_length`` cap truncates the tail of the sequence.
+
+    Stack lines use abbreviated model keys (p/c/v/l/s) with no per-line
+    weight annotations; weights are stated once in the system prompt via
+    ``build_meta_system_prompt``.
+
+    Prob values use 2-decimal abbreviated label keys (A/D/J/F/O/Sa/Su).
 
     The completion (only present when ``label`` is given) is
-    ``<label>EMOTION</label>``.
+    ``<label>EMOTION</label>`` with the full label name unchanged.
     """
 
     used_models = [m for m in model_order if m in probs_per_model and m in weights]
-    lines = [f"[TEXT] {text} [/TEXT]", "[STACK]"]
-    for m in used_models:
-        w = weights[m]
-        lines.append(f"<{m} w={w:.3f}>{_format_prob_dict(probs_per_model[m], label_map)}")
-    lines.append("[/STACK]")
     avg = weighted_average(
         {m: probs_per_model[m][None, :] for m in used_models},
         {m: weights[m] for m in used_models},
     )[0]
-    lines.append(f"[WEIGHTED_AVG]{_format_prob_dict(avg, label_map)}[/WEIGHTED_AVG]")
+
+    lines = [
+        f"[TEXT] {text} [/TEXT]",
+        f"[WEIGHTED_AVG]{_format_prob_dict_compact(avg, label_map)}[/WEIGHTED_AVG]",
+        "[STACK]",
+    ]
+    for m in used_models:
+        abbr = MODEL_ABBR.get(m, m)
+        lines.append(f"{abbr}:{_format_prob_dict_compact(probs_per_model[m], label_map)}")
+    lines.append("[/STACK]")
+
     prompt = "\n".join(lines)
     completion = f"<label>{label}</label>" if label is not None else ""
     return {"prompt": prompt, "completion": completion}

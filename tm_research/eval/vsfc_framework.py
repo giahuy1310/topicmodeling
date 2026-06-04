@@ -368,6 +368,7 @@ def run_gemma_zeroshot(
     device: Optional[str] = None,
     batch_size: int = 4,
     max_new_tokens: int = 12,
+    max_length: int = 640,
 ) -> List[Optional[str]]:
     """Run VSMEC-adapted Gemma on VSFC texts; map output emotion → polarity.
 
@@ -403,7 +404,7 @@ def run_gemma_zeroshot(
             fp = format_prompt(batch_texts[j], row_probs, usable_weights, vsmec_label_map, label=None)
             prompts.append(f"{system_prompt}\n\n{fp['prompt']}")
 
-        enc = tok(prompts, return_tensors="pt", padding=True, truncation=True, max_length=512).to(device)
+        enc = tok(prompts, return_tensors="pt", padding=True, truncation=True, max_length=max_length).to(device)
         with torch.no_grad():
             out = model.generate(**enc, max_new_tokens=max_new_tokens,
                                  pad_token_id=tok.eos_token_id, do_sample=False)

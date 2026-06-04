@@ -55,7 +55,7 @@ class BertOOFConfig:
     adam_beta2: float = 0.999
     adam_epsilon: float = 1e-8
     max_grad_norm: float = 1.0
-    metric_for_best_model: str = "f1"  # changed to "f1" per instructions
+    metric_for_best_model: str = "f1_macro"
 
 
 def _seed_everything(seed: int) -> None:
