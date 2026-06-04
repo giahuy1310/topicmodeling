@@ -1,10 +1,4 @@
-"""Shared I/O helpers for the ensemble pipeline.
-
-Loads the train/val/test CSVs, normalizes column names to ``text`` and ``label``,
-and builds deterministic ``label2id`` / ``id2label`` mappings from the training
-labels (sorted alphabetically, matching the convention used by the existing
-PhoBERT/CafeBERT/ViBERT notebooks).
-"""
+"""I/O helpers for the VSFC native ensemble pipeline."""
 
 from __future__ import annotations
 
@@ -18,29 +12,29 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-DEFAULT_DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "processed"
+DEFAULT_DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "processed" / "vsfc"
 
 PERSISTENT_ARTIFACTS_DIR = Path(
     os.environ.get(
-        "TM_ENSEMBLE_PERSISTENT_ARTIFACTS_DIR",
+        "TM_VSFC_ENSEMBLE_PERSISTENT_ARTIFACTS_DIR",
         str(Path(__file__).resolve().parent / "artifacts"),
     )
 )
 
 ARTIFACTS_DIR = Path(
-    os.environ.get("TM_ENSEMBLE_ARTIFACTS_DIR", str(PERSISTENT_ARTIFACTS_DIR))
+    os.environ.get("TM_VSFC_ENSEMBLE_ARTIFACTS_DIR", str(PERSISTENT_ARTIFACTS_DIR))
 )
 PROBS_DIR = ARTIFACTS_DIR / "probs"
 META_JSONL_DIR = ARTIFACTS_DIR / "meta_jsonl"
 METRICS_DIR = ARTIFACTS_DIR / "metrics"
 LORA_DIR = ARTIFACTS_DIR / "lora_adapter"
 
-TRAIN_FILE = "train_1500_final.csv"
-VAL_FILE = "val_final.csv"
-TEST_FILE = "test_final.csv"
+TRAIN_FILE = "vsfc_train_final.csv"
+VAL_FILE = "vsfc_val_final.csv"
+TEST_FILE = "vsfc_test_final.csv"
 
-TEXT_CANDIDATES = ("Sentence_clean", "Sentence", "text")
-LABEL_CANDIDATES = ("Emotion", "label")
+TEXT_CANDIDATES = ("text", "Sentence_clean", "Sentence")
+LABEL_CANDIDATES = ("label", "Emotion")
 
 
 @dataclass
@@ -82,16 +76,17 @@ def _normalize(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def load_splits(
+def load_vsfc_splits(
     data_dir: str | os.PathLike | None = None,
     train_file: str = TRAIN_FILE,
     val_file: str = VAL_FILE,
     test_file: str = TEST_FILE,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, LabelMap]:
-    """Load train/val/test as ``(text, label)`` DataFrames plus the label map.
+    """Load preprocessed UIT-VSFC train/val/test CSVs plus a stable label map.
 
-    The label map is built from sorted unique labels in the training set so the
-    indexing is stable across runs.
+    Expects exports from ``VSFC_DataPreprocessing.ipynb`` under
+    ``data/processed/vsfc/``. Labels are sorted alphabetically:
+    ``negative``, ``neutral``, ``positive``.
     """
 
     base = Path(data_dir) if data_dir is not None else DEFAULT_DATA_DIR
@@ -119,8 +114,6 @@ def load_splits(
 
 
 def load_label_map() -> LabelMap:
-    """Reload the label map saved by :func:`load_splits`."""
-
     path = ARTIFACTS_DIR / "label_map.json"
     with open(path, "r", encoding="utf-8") as f:
         raw = json.load(f)
@@ -130,8 +123,6 @@ def load_label_map() -> LabelMap:
 
 
 def probs_path(model_name: str, split: str) -> Path:
-    """Return ``artifacts/probs/{model_name}_{split}.npy``."""
-
     assert split in {"oof", "val", "test"}, split
     return PROBS_DIR / f"{model_name}_{split}.npy"
 
@@ -185,13 +176,6 @@ def _copy_tree(src: Path, dst: Path, *, newer_only: bool, verbose: bool) -> int:
 
 
 def push_artifacts_to_persistent(verbose: bool = True) -> Optional[Path]:
-    """Copy current ``ARTIFACTS_DIR`` → ``PERSISTENT_ARTIFACTS_DIR``.
-
-    Run this at the end of a Colab notebook so results on local scratch
-    (``/content/...``) are persisted to Drive. No-op if the two paths resolve
-    to the same directory.
-    """
-
     src, dst = ARTIFACTS_DIR, PERSISTENT_ARTIFACTS_DIR
     try:
         same = src.resolve() == dst.resolve()
@@ -208,13 +192,6 @@ def push_artifacts_to_persistent(verbose: bool = True) -> Optional[Path]:
 
 
 def pull_artifacts_from_persistent(verbose: bool = True) -> Optional[Path]:
-    """Copy ``PERSISTENT_ARTIFACTS_DIR`` → ``ARTIFACTS_DIR`` (newer files only).
-
-    Called by ``colab_setup.setup_colab`` at session start so a fresh Colab
-    VM can see artifacts produced by earlier runs (e.g. notebook 05 reading
-    OOF probs written by 01..04 last week).
-    """
-
     src, dst = PERSISTENT_ARTIFACTS_DIR, ARTIFACTS_DIR
     try:
         same = src.resolve() == dst.resolve()

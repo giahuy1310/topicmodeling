@@ -39,5 +39,6 @@ tm_research/data/
 
 #Ignore all files in the artifacts folder
 tm_research/ensemble/artifacts/
+tm_research/VSFC_ensemble/artifacts/
 
 
