@@ -10,6 +10,7 @@ Native **3-class sentiment** classification on UIT-VSFC using the same stacked-e
 
 1. Run [VSFC_DataPreprocessing.ipynb](../VSFC_DataPreprocessing.ipynb) → `data/processed/vsfc/vsfc_{train,val,test}_final.csv`
 2. Run notebooks **01 → 07** in order (Colab: use `tmp_root='/content/vsfc_ensemble_tmp'` so artifacts do not clash with `ensemble/`)
+3. Optional: notebook **08** — batch demo inference on the test split (or a custom CSV)
 
 ---
 
@@ -32,6 +33,7 @@ Notebook order:
 | 05 | Weights + meta JSONL | `weights.json`, `meta_jsonl/*.jsonl` |
 | 06 | QLoRA Gemma-2-9B-it | `lora_adapter/` |
 | 07 | Evaluation + test export | `metrics/ensemble_summary.json`, `test_predictions.csv` |
+| 08 | Demo batch predictions (optional) | `demo_predictions.csv` |
 
 ---
 
@@ -51,6 +53,7 @@ VSFC_ensemble/artifacts/
 ├── metrics/
 │   └── ensemble_summary.json
 ├── test_predictions.csv        # per-example gold vs weighted vs LoRA (notebook 07)
+├── demo_predictions.csv        # batch demo output: weighted + LoRA preds (notebook 08)
 └── lora_adapter/
 ```
 

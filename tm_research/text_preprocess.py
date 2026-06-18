@@ -64,7 +64,7 @@ TEXT_EMOTICONS = {
     '-_-': 'chán', '-.-': 'chán',
     '>.<': 'khó chịu',
     '^_^': 'vui vẻ', '^.^': 'vui vẻ',
-    'T_T': 'khóc', 'T.T': 'khóc',
+    'T_T': 'khóc', 'T.T': 'khóc', 
     '>_<': 'khó chịu',
     '<3': 'yêu thương', '</3': 'tan vỡ',
     ':*': 'hôn', ':-*': 'hôn',
