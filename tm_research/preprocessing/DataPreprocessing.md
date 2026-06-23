@@ -1,6 +1,6 @@
 # Data Preprocessing Pipeline
 
-This document describes the end-to-end data preprocessing pipeline used for preparing Vietnamese text data for emotion classification. The pipeline is implemented in `DataPreprocessing.ipynb`.
+This document describes the end-to-end data preprocessing pipeline used for preparing Vietnamese text data for emotion classification. The pipeline is implemented in [`preprocessing/DataPreprocessing.ipynb`](DataPreprocessing.ipynb).
 
 ## Overview
 

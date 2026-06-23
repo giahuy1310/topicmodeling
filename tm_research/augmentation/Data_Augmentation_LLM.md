@@ -1,6 +1,6 @@
 # Data Augmentation Framework (LLM) - Technical Overview
 
-This document explains the augmentation framework implemented in `tm_research/Data_Augmentation_LLM.ipynb`.
+This document explains the augmentation framework implemented in [`augmentation/Data_Augmentation_LLM.ipynb`](Data_Augmentation_LLM.ipynb).
 
 ## 1) Goal
 
@@ -205,7 +205,7 @@ Observed flow:
 1. Initialize augmenter instance.
 2. Run `run_balanced_augmentation(...)` with selected target and generation params.
 3. Merge with original via `combine_with_original(...)`.
-4. Save to `./data/processed/train_balanced_optimized.csv`.
+4. Save to `tm_research/data/processed/train_balanced_optimized.csv`.
 5. Post-process, validate distribution, export cleaned file.
 
 ## 7) Key Tunable Parameters

@@ -2,19 +2,26 @@
 
 This repository contains research code for Vietnamese fine-grained emotion recognition, with **ensemble learning** as the main direction.
 
-The core pipeline is a **stacked ensemble** in [`tm_research/ensemble`](tm_research/ensemble), where multiple base classifiers are combined and refined by a Gemma meta-model. Supporting work includes LLM data augmentation, standalone BERT/ML/DL experiments, and an auxiliary topic-modeling CLI.
+The core pipeline is a **stacked ensemble** in [`tm_research/ensemble`](tm_research/ensemble), where multiple base classifiers are combined and refined by a Gemma meta-model. A parallel **VSFC sentiment** pipeline lives under [`tm_research/VSFC_ensemble`](tm_research/VSFC_ensemble). Supporting work includes LLM data augmentation and preprocessing notebooks.
 
 ## Project Focus
 
-- **Main topic**: Ensemble learning for Vietnamese emotion classification.
+- **Main topic**: Ensemble learning for Vietnamese emotion classification (UIT-VSMEC) and sentiment classification (UIT-VSFC).
 - **Primary objective**: Improve macro-level and minority-class performance through model combination and meta-learning.
-- **Supporting experiments**: LLM-based data augmentation, single-model BERT studies, ML/DL baselines, topic modeling CLI.
+- **Supporting work**: LLM-based data augmentation, data preprocessing, synthetic-data QA.
 
 ## Dataset
+
+### UIT-VSMEC (emotion)
 
 - **Corpus**: [UIT-VSMEC](https://nlp.uit.edu.vn/datasets) (Vietnamese Social Media Emotion Corpus).
 - **Labels**: `Enjoyment`, `Sadness`, `Fear`, `Anger`, `Disgust`, `Surprise`, `Other`.
 - **Working format**: `text` (Vietnamese sentence) and `label` (emotion category).
+
+### UIT-VSFC (sentiment)
+
+- **Corpus**: [UIT-VSFC](https://huggingface.co/datasets/uitnlp/vietnamese_students_feedback) (Vietnamese Students' Feedback Corpus).
+- **Labels**: `negative`, `neutral`, `positive`.
 
 ---
 
@@ -32,7 +39,7 @@ Create `tm_research/.env` for API-backed stages:
 
 | Variable | Used by | Notes |
 | --- | --- | --- |
-| `GOOGLE_API_KEY` | [`Data_Augmentation_LLM.ipynb`](tm_research/Data_Augmentation_LLM.ipynb) | Gemini via LangChain |
+| `GOOGLE_API_KEY` | [`augmentation/Data_Augmentation_LLM.ipynb`](tm_research/augmentation/Data_Augmentation_LLM.ipynb) | Gemini via LangChain |
 | `HF_TOKEN` | [`ensemble/06_train_meta_lora_gemma.ipynb`](tm_research/ensemble/06_train_meta_lora_gemma.ipynb) | Accept [Gemma-2 license](https://huggingface.co/google/gemma-2-9b-it) on HuggingFace |
 
 **Hardware**
@@ -45,7 +52,7 @@ Create `tm_research/.env` for API-backed stages:
 
 ---
 
-## Minimum Path to Reproduce the Ensemble
+## Minimum Path to Reproduce the VSMEC Ensemble
 
 If you only need the headline stacked-ensemble result:
 
@@ -58,15 +65,23 @@ Hyperparameters and artifact layout: [`tm_research/ensemble/WORKFLOW.md`](tm_res
 
 ---
 
-## End-to-End Pipeline
+## VSFC Sentiment Ensemble
+
+1. Run [`preprocessing/VSFC_DataPreprocessing.ipynb`](tm_research/preprocessing/VSFC_DataPreprocessing.ipynb) → `data/processed/vsfc/vsfc_{train,val,test}_final.csv`.
+2. Run [`VSFC_ensemble/01`](tm_research/VSFC_ensemble/01_base_phobert_oof.ipynb) → [`07`](tm_research/VSFC_ensemble/07_evaluate_ensemble.ipynb) on a GPU machine.
+3. Optional demo: [`08_demo_ensemble_predict.ipynb`](tm_research/VSFC_ensemble/08_demo_ensemble_predict.ipynb).
+
+Details: [`tm_research/VSFC_ensemble/WORKFLOW.md`](tm_research/VSFC_ensemble/WORKFLOW.md).
+
+---
+
+## End-to-End Pipeline (VSMEC)
 
 ```mermaid
 flowchart TD
   retrieve[Data retrieval UIT-VSMEC] --> preprocess[Data preprocessing]
   preprocess --> augment[LLM augmentation optional]
   augment --> clean[Clean and export splits]
-  clean --> bert[BERT fine-tuning notebooks]
-  clean --> ml[ML/DL baselines]
   clean --> ensembleBase[Ensemble base models 01-04]
   ensembleBase --> metaData[Meta dataset 05]
   metaData --> lora[LoRA Gemma training 06]
@@ -96,34 +111,37 @@ Column names are normalized automatically: text from `Sentence_clean` / `Sentenc
 - `valid_nor_811.xlsx`
 - `test_nor_811.xlsx`
 
-**Reference notebook:** [`tm_research/EmoModel_Local.ipynb`](tm_research/EmoModel_Local.ipynb) — loads Excel splits and drops the ID column.
-
 From the raw splits, preprocessing notebooks produce CSVs under `tm_research/data/processed/` (created at runtime, not in git).
 
 ---
 
 ### Stage 2 — Data Preprocessing
 
-**Notebook:** [`tm_research/DataPreprocessing.ipynb`](tm_research/DataPreprocessing.ipynb)
+**Notebooks:**
+
+| Corpus | Notebook |
+| --- | --- |
+| UIT-VSMEC | [`preprocessing/DataPreprocessing.ipynb`](tm_research/preprocessing/DataPreprocessing.ipynb) |
+| UIT-VSFC | [`preprocessing/VSFC_DataPreprocessing.ipynb`](tm_research/preprocessing/VSFC_DataPreprocessing.ipynb) |
 
 **Shared logic:** [`tm_research/text_preprocess.py`](tm_research/text_preprocess.py) (`preprocess_vietnamese_text`)
 
 **What it does:** emoji/emoticon/abbreviation normalization, URL/HTML stripping, deduplication, shuffle (seed 42). Stopwords are intentionally kept for BERT.
 
-**Typical I/O** (see [`DataPreprocessing.md`](tm_research/DataPreprocessing.md)):
+**Typical VSMEC I/O** (see [`preprocessing/DataPreprocessing.md`](tm_research/preprocessing/DataPreprocessing.md)):
 
 | | Path |
 | --- | --- |
 | Input | `data/processed/train_1500_para_processed.csv` |
 | Output | `data/processed/train_1500_para_final.csv` |
 
-**Intermediate splits** used by augmentation and BERT notebooks: `train_org_processed.csv`, `val_processed.csv`, `test_processed.csv`.
+**Intermediate splits** used by augmentation and ensemble notebooks: `train_org_processed.csv`, `val_processed.csv`, `test_processed.csv`, and `*_final.csv`.
 
 ---
 
 ### Stage 3 — LLM Data Augmentation *(optional)*
 
-**Notebook:** [`tm_research/Data_Augmentation_LLM.ipynb`](tm_research/Data_Augmentation_LLM.ipynb)
+**Notebook:** [`augmentation/Data_Augmentation_LLM.ipynb`](tm_research/augmentation/Data_Augmentation_LLM.ipynb)
 
 **Requires:** `GOOGLE_API_KEY` in `tm_research/.env`
 
@@ -134,42 +152,16 @@ From the raw splits, preprocessing notebooks produce CSVs under `tm_research/dat
 | Output | `train_1500_gen_eval.csv` — with provenance columns |
 | Output | `train_1500_gen_clean.csv` — training-ready (3 columns) |
 
-**Optional QA:** [`Synthetic_Data_Fidelity_Eval.ipynb`](tm_research/Synthetic_Data_Fidelity_Eval.ipynb)
+**Optional QA:**
 
-**Details:** [`Data_Augmentation_LLM.md`](tm_research/Data_Augmentation_LLM.md)
+- [`augmentation/Synthetic_Data_Fidelity_Eval.ipynb`](tm_research/augmentation/Synthetic_Data_Fidelity_Eval.ipynb) — statistical fidelity
+- [`augmentation/Generated_data_eval.ipynb`](tm_research/augmentation/Generated_data_eval.ipynb) — lexical diversity (Distinct-n, Self-BLEU)
 
----
-
-### Stage 4 — Standalone BERT Model Training
-
-Run **one notebook per model**. Set `SKIP_TRAINING = False` for full training (Colab-oriented notebooks also support loading a saved checkpoint when `True`).
-
-| Notebook | HuggingFace model | Typical train file |
-| --- | --- | --- |
-| [`EmoModel_Advanced_PhoBERT_v2_Test.ipynb`](tm_research/EmoModel_Advanced_PhoBERT_v2_Test.ipynb) | `vinai/phobert-base-v2` | `train_1500_para_final.csv` |
-| [`EmoModel_Advanced_CafeBert_Test.ipynb`](tm_research/EmoModel_Advanced_CafeBert_Test.ipynb) | `uitnlp/CafeBERT` | `train_10000_final.csv` / augmented variants |
-| [`EmoModel_Advanced_viBERT_FPT_Test.ipynb`](tm_research/EmoModel_Advanced_viBERT_FPT_Test.ipynb) | `FPTAI/vibert-base-cased` | augmented train splits |
-| [`EmoModel_Advanced_VisoBERT_Test.ipynb`](tm_research/EmoModel_Advanced_VisoBERT_Test.ipynb) | `uitnlp/visobert` | `train_1500_para_final.csv` |
-| [`EmoModel_Advanced_XLMR_Test.ipynb`](tm_research/EmoModel_Advanced_XLMR_Test.ipynb) | XLM-RoBERTa | processed splits |
-
-**Process summary:** [`BERT_Training_and_Testing_Process.md`](tm_research/BERT_Training_and_Testing_Process.md)
-
-Run with a GPU runtime (local CUDA or Colab with Drive-mounted `thesis/data/processed/`).
+**Details:** [`augmentation/Data_Augmentation_LLM.md`](tm_research/augmentation/Data_Augmentation_LLM.md)
 
 ---
 
-### Stage 5 — ML and DL Baselines
-
-| Track | Notebook | Models |
-| --- | --- | --- |
-| **ML (TF-IDF + sklearn)** | [`EmoModel_Vectorization_Comparison.ipynb`](tm_research/EmoModel_Vectorization_Comparison.ipynb) | Logistic Regression, Random Forest, LinearSVC, Naive Bayes; LSTM/CNN with random-init and Word2Vec embeddings |
-| **DL (BiLSTM)** | [`EmoModel_BiLSTM.ipynb`](tm_research/EmoModel_BiLSTM.ipynb) | Stacked BiLSTM with 5-fold cross-validation |
-
-Inputs typically use `val_final.csv` / `val_processed.csv` and `test_final.csv` / `test_processed.csv` depending on the experiment variant.
-
----
-
-### Stage 6 — Stacked Ensemble + LLM Meta-Model
+### Stage 4 — Stacked Ensemble + LLM Meta-Model (VSMEC)
 
 Run notebooks **in order** under [`tm_research/ensemble/`](tm_research/ensemble/):
 
@@ -197,20 +189,9 @@ High-level flow:
 
 ---
 
-## Experimental Results (notebook / thesis)
+## Experimental Results (thesis)
 
-The numbers below are the **reported results** from the thesis write-up ([`Documents/Thesis.md`](Documents/Thesis.md), Chapter 4: Experiments and Results), which corresponds to the ensemble and augmentation experiments implemented in this repository’s notebooks.
-
-### Baseline BERT models (original UIT-VSMEC, averaged over five seeds)
-
-| Model | Accuracy | Weighted F1 |
-| --- | --- | --- |
-| PhoBERT v2-Large | 0.6075 | 0.602 |
-| ViBERT | 0.6106 | 0.6101 |
-| CafeBERT | 0.6344 | 0.628 |
-| XLM-RoBERTa | 0.5691 | 0.5574 |
-
-CafeBERT is used as the primary model for augmentation experiments.
+Key reported results from the thesis write-up:
 
 ### Minority-class F1 (Fear, Anger, Surprise) with CafeBERT and Gemini-2.5-Flash augmentation
 
@@ -228,28 +209,14 @@ CafeBERT is used as the primary model for augmentation experiments.
 | Paraphrased augmented | 0.6676 | 0.6682 |
 | Generated augmented | 0.6703 | 0.671 |
 
-### BERT models trained on augmented data (test set)
-
-| Model | Test accuracy | Test F1 (weighted) |
-| --- | --- | --- |
-| CafeBERT | 0.6703 | 0.671 |
-| PhoBERT | 0.6378 | 0.633 |
-| ViBERT | 0.6387 | 0.6375 |
-| XLM-R | 0.6214 | 0.6227 |
-
-### Ensemble vs. baselines (UIT-VSMEC; thesis Table 12)
+### Ensemble vs. baselines (UIT-VSMEC)
 
 | Method | Accuracy | Weighted F1 |
 | --- | --- | --- |
-| **Stacked ensemble + Gemma meta-model (thesis: “Genma”) (OUR WORK)** | **0.7023** | **0.7022** |
+| **Stacked ensemble + Gemma meta-model (OUR WORK)** | **0.7023** | **0.7022** |
 | CafeBERT + augmented data | 0.6676 | 0.6682 |
 | Gemma zero-shot prompting | 0.6864 | 0.6809 |
 | MLR + preprocessing + key-clause extraction | 0.6436 | 0.6440 |
-| CafeBERT (prior work, thesis ref.) | — | 0.6612 |
-| VisoBERT (prior work, thesis ref.) | 0.6810 | 0.6837 |
-| XLM-R-Large (prior work, thesis ref.) | 0.6137 | 0.6020 |
-
-Narrative discussion, non-transformer baselines (Tables 9–10), and evaluation metrics setup are in [`Documents/Thesis.md`](Documents/Thesis.md) (Chapter 4–5 and abstract).
 
 ---
 
@@ -257,38 +224,17 @@ Narrative discussion, non-transformer baselines (Tables 9–10), and evaluation 
 
 ```text
 tm_research/
-  data/processed/              # runtime CSV splits (not in git)
-  ensemble/                    # stacked ensemble notebooks + artifacts/
-    artifacts/                 # probs, meta JSONL, LoRA adapter, metrics
-    WORKFLOW.md
+  preprocessing/               # VSMEC + VSFC cleaning notebooks
+  augmentation/                # LLM augmentation + QA eval
+  ensemble/                    # VSMEC stacked ensemble (01–08) + artifacts/
+  VSFC_ensemble/               # VSFC stacked ensemble (01–08) + artifacts/
   text_preprocess.py
-  Data_Augmentation_LLM.ipynb
-  DataPreprocessing.ipynb
-  EmoModel_*.ipynb             # standalone BERT / ML / DL experiments
-  cli.py                       # auxiliary topic-modeling CLI
+  eval/vsfc_labels.py
+  data/processed/              # runtime CSV splits (not in git)
 data/                          # raw UIT-VSMEC Excel splits (not in git)
+Confusion_matrix/              # ensemble eval outputs
 requirements.txt
 README.md
-```
-
----
-
-## Auxiliary: Topic Modeling CLI
-
-An experimental topic-modeling CLI lives under `tm_research`. It is **not** part of the main emotion-recognition pipeline.
-
-```bash
-python -m tm_research.cli ingest --query "<your query>" --num-results 10 --out data/raw.jsonl
-python -m tm_research.cli model --input data/raw.jsonl --num-topics 8 --out data/topics.json
-python -m tm_research.cli summarize --input data/topics.json --out data/summary.md
-python -m tm_research.cli run --query "<your query>" --num-results 10 --num-topics 8
-```
-
-Classic TF-IDF + NMF:
-
-```bash
-python -m tm_research.cli model --input data/raw.jsonl --num-topics 8 --method classic --out data/topics.json
-python -m tm_research.cli run --query "<your query>" --num-results 10 --num-topics 8 --method classic
 ```
 
 ---
@@ -296,5 +242,4 @@ python -m tm_research.cli run --query "<your query>" --num-results 10 --num-topi
 ## Notes
 
 - Ensemble learning is the canonical direction for this project.
-- Other notebooks and modules are preserved as experiments, baselines, or legacy references.
-- Further reading: [`Data_Augmentation_LLM.md`](tm_research/Data_Augmentation_LLM.md), [`DataPreprocessing.md`](tm_research/DataPreprocessing.md), [`BERT_Training_and_Testing_Process.md`](tm_research/BERT_Training_and_Testing_Process.md), [`ensemble/WORKFLOW.md`](tm_research/ensemble/WORKFLOW.md).
+- Further reading: [`augmentation/Data_Augmentation_LLM.md`](tm_research/augmentation/Data_Augmentation_LLM.md), [`preprocessing/DataPreprocessing.md`](tm_research/preprocessing/DataPreprocessing.md), [`ensemble/WORKFLOW.md`](tm_research/ensemble/WORKFLOW.md), [`VSFC_ensemble/WORKFLOW.md`](tm_research/VSFC_ensemble/WORKFLOW.md).

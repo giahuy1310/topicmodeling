@@ -2,13 +2,13 @@
 
 Native **3-class sentiment** classification on UIT-VSFC using the same stacked-ensemble design as `tm_research/ensemble/` (VSMEC emotions): five base models → accuracy-normalized weighted average → QLoRA Gemma-2-9B-it meta-model.
 
-**Not included:** VSMEC transfer, 7→3 emotion collapse, or reusing VSMEC checkpoints. All models train on VSFC train/val/test splits from `VSFC_DataPreprocessing.ipynb`.
+**Not included:** VSMEC transfer, 7→3 emotion collapse, or reusing VSMEC checkpoints. All models train on VSFC train/val/test splits from [`preprocessing/VSFC_DataPreprocessing.ipynb`](../preprocessing/VSFC_DataPreprocessing.ipynb).
 
 ---
 
 ## Prerequisites
 
-1. Run [VSFC_DataPreprocessing.ipynb](../VSFC_DataPreprocessing.ipynb) → `data/processed/vsfc/vsfc_{train,val,test}_final.csv`
+1. Run [VSFC_DataPreprocessing.ipynb](../preprocessing/VSFC_DataPreprocessing.ipynb) → `data/processed/vsfc/vsfc_{train,val,test}_final.csv`
 2. Run notebooks **01 → 07** in order (Colab: use `tmp_root='/content/vsfc_ensemble_tmp'` so artifacts do not clash with `ensemble/`)
 3. Optional: notebook **08** — batch demo inference on the test split (or a custom CSV)
 

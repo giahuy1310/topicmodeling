@@ -86,7 +86,7 @@ def test_weighted_avg_before_stack(prompt_and_completion):
 
 def test_all_structural_markers_present(prompt_and_completion):
     prompt = prompt_and_completion["prompt"]
-    for marker in ("[TEXT]", "[/TEXT]", "[WEIGHTED_AVG]", "[/WEIGHTED_AVG]", "[STACK]", "[/STACK]"]):
+    for marker in ("[TEXT]", "[/TEXT]", "[WEIGHTED_AVG]", "[/WEIGHTED_AVG]", "[STACK]", "[/STACK]"):
         assert marker in prompt, f"Missing marker: {marker}"
 
 
