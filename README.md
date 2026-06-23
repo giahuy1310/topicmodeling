@@ -27,6 +27,10 @@ The core pipeline is a **stacked ensemble** in [`tm_research/ensemble`](tm_resea
 
 ## Environment Setup
 
+The pipeline was developed and executed primarily on **Google Colab** with GPU acceleration and high-RAM runtimes. Local execution is possible with equivalent CUDA hardware, but Colab is the documented path.
+
+### Software dependencies
+
 From the repository root:
 
 ```bash
@@ -35,20 +39,80 @@ source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Create `tm_research/.env` for API-backed stages:
+Ensemble notebooks additionally install, via `%pip install` in their first cells:
 
-| Variable | Used by | Notes |
+`torchao`, `peft`, `trl`, `bitsandbytes`, `accelerate`, `transformers`, `datasets`
+
+*(These packages are also listed in [`requirements.txt`](requirements.txt) for local installs.)*
+
+### API keys and secrets
+
+| Variable | Used by | Configuration |
 | --- | --- | --- |
-| `GOOGLE_API_KEY` | [`augmentation/Data_Augmentation_LLM.ipynb`](tm_research/augmentation/Data_Augmentation_LLM.ipynb) | Gemini via LangChain |
-| `HF_TOKEN` | [`ensemble/06_train_meta_lora_gemma.ipynb`](tm_research/ensemble/06_train_meta_lora_gemma.ipynb) | Accept [Gemma-2 license](https://huggingface.co/google/gemma-2-9b-it) on HuggingFace |
+| `GOOGLE_API_KEY` | [`augmentation/Data_Augmentation_LLM.ipynb`](tm_research/augmentation/Data_Augmentation_LLM.ipynb) | Colab Secret or [`tm_research/.env`](tm_research/.env) |
+| `HF_TOKEN` | [`ensemble/06_train_meta_lora_gemma.ipynb`](tm_research/ensemble/06_train_meta_lora_gemma.ipynb) | Colab Secret; accept [Gemma-2 license](https://huggingface.co/google/gemma-2-9b-it) on HuggingFace |
 
-**Hardware**
+For `HF_TOKEN`, create a token at [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) and accept the license at [google/gemma-2-9b-it](https://huggingface.co/google/gemma-2-9b-it). In Colab, add the token via the key icon in the sidebar (**Secrets**) and grant notebook access.
 
-- **BERT base models (ensemble 01–04):** CUDA GPU recommended.
-- **Gemma LoRA meta-model (ensemble 06):** ~24 GB VRAM (A100 / A6000 class).
-- **Google Colab:** the first setup cell in ensemble notebooks calls [`colab_setup.py`](tm_research/ensemble/colab_setup.py) to mount Drive and route HuggingFace cache to `/content/ensemble_tmp`.
+### Hardware requirements (Google Colab)
 
-**How to run notebooks:** open in Jupyter or VS Code, select the `.venv` kernel, enable a GPU runtime (Colab or local CUDA), and run cells top-to-bottom. Processed CSVs live under `tm_research/data/processed/` and are **not committed** to git.
+| Resource | Requirement |
+| --- | --- |
+| GPU | CUDA-enabled: **A100** (preferred), **T4**, or **G4** |
+| System RAM | **High-RAM** mode; 22–80 GB depending on runtime |
+| Notebook 06 peak RAM | ~**80 GB** |
+| VRAM (notebooks 06–07) | ~**24 GB** (4-bit QLoRA on `google/gemma-2-9b-it`) |
+| Storage | Google Drive mount recommended for artifact persistence |
+
+| Notebook | GPU | RAM (approx.) | Notes |
+| --- | --- | --- | --- |
+| [`augmentation/Data_Augmentation_LLM.ipynb`](tm_research/augmentation/Data_Augmentation_LLM.ipynb) | Optional | Low | API-bound |
+| [`preprocessing/DataPreprocessing.ipynb`](tm_research/preprocessing/DataPreprocessing.ipynb) | Optional | Low | CPU sufficient |
+| [`ensemble/01`](tm_research/ensemble/01_base_phobert_oof.ipynb)–[`04`](tm_research/ensemble/04_base_sklearn_oof.ipynb) | **Required** | 22–40 GB | 3-fold OOF, 20 epochs each |
+| [`ensemble/05`](tm_research/ensemble/05_weights_and_meta_dataset.ipynb) | Optional | Low | Builds JSONL meta-dataset |
+| [`ensemble/06`](tm_research/ensemble/06_train_meta_lora_gemma.ipynb) | **Required** | ~80 GB | QLoRA meta-model training |
+| [`ensemble/07`](tm_research/ensemble/07_evaluate_ensemble.ipynb) | **Required** | 40–80 GB | Inference and baseline comparison |
+
+### Repository setup on Colab
+
+1. Clone or upload the repository to Google Drive. The default path used in ensemble notebooks is:
+
+   ```
+   /content/drive/MyDrive/thesis/topicmodeling
+   ```
+
+2. In Colab, select **Runtime → Change runtime type**, enable a GPU (**A100** when available), and turn on **High-RAM**.
+
+3. Mount Google Drive and configure ephemeral scratch space. Each ensemble notebook begins with a setup cell that calls `setup_colab()` from [`tm_research/ensemble/colab_setup.py`](tm_research/ensemble/colab_setup.py):
+
+   ```python
+   import os, sys
+   REPO_ROOT = '/content/drive/MyDrive/thesis/topicmodeling'
+   TMP_ROOT = '/content/ensemble_tmp'
+
+   if 'google.colab' in sys.modules:
+       from google.colab import drive
+       if not os.path.ismount('/content/drive'):
+           drive.mount('/content/drive')
+       if REPO_ROOT not in sys.path:
+           sys.path.insert(0, REPO_ROOT)
+
+   from tm_research.ensemble.colab_setup import setup_colab
+   paths = setup_colab(repo_root=REPO_ROOT, tmp_root=TMP_ROOT)
+   ```
+
+   This mounts Drive, routes HuggingFace cache and trainer checkpoints to `/content/ensemble_tmp`, and copies prior artifacts from Drive when resuming a session.
+
+4. After each ensemble notebook completes, persist artifacts to Drive:
+
+   ```python
+   from tm_research.ensemble.utils_io import push_artifacts_to_persistent
+   push_artifacts_to_persistent()
+   ```
+
+**How to run notebooks:** open in Jupyter, VS Code, or Colab; select the appropriate kernel; enable a GPU runtime where required; run cells top-to-bottom. Processed CSVs live under `tm_research/data/processed/` and are **not committed** to git.
+
+Full reproduction details: [`Installation Instruction.tex`](Installation%20Instruction.tex).
 
 ---
 
