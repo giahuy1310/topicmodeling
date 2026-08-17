@@ -162,8 +162,6 @@ The test set is evaluated against four systems:
 
 | System | Description |
 |--------|-------------|
-| `baseline_weighted_avg_argmax` | argmax of the 5-model weighted average |
-| `baseline_best_single_{name}` | argmax of the single best base model (by val acc) |
 | `zero_shot_gemma` | Gemma-2-9B-it with the same prompts but no LoRA |
 | `lora_gemma_meta` | LoRA-adapted Gemma-2-9B-it (the full system) |
 

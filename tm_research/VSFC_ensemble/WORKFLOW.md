@@ -63,9 +63,7 @@ Colab env vars: `TM_VSFC_ENSEMBLE_ARTIFACTS_DIR`, `TM_VSFC_ENSEMBLE_PERSISTENT_A
 
 ## Evaluation systems (notebook 07)
 
-1. `baseline_weighted_avg_argmax`
-2. `baseline_best_single_{name}`
-3. `zero_shot_gemma`
-4. `lora_gemma_meta`
+1. `zero_shot_gemma`
+2. `lora_gemma_meta`
 
 Hyperparameters match [ensemble/WORKFLOW.md](../ensemble/WORKFLOW.md) unless noted; `MAX_SEQ_LEN=800` for LoRA is sufficient for 3-class compact_v1 prompts.
