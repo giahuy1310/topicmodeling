@@ -179,6 +179,73 @@ def weighted_average(
     return np.tensordot(w, P, axes=([0], [0]))
 
 
+def stack_prob_features(
+    probs_per_model: Dict[str, np.ndarray],
+    model_order: Iterable[str] = BASE_MODEL_NAMES,
+) -> np.ndarray:
+    """Concatenate per-model ``(N, C)`` matrices into ``(N, M*C)`` in ``model_order``."""
+
+    keys = list(model_order)
+    missing = [k for k in keys if k not in probs_per_model]
+    if missing:
+        raise ValueError(f"Missing model(s) in probs_per_model: {', '.join(missing)}")
+    arrays = [np.asarray(probs_per_model[k], dtype=np.float32) for k in keys]
+    n0, _c0 = arrays[0].shape
+    for k, arr in zip(keys, arrays):
+        if arr.ndim != 2:
+            raise ValueError(f"{k}: expected 2D (N, C), got shape {arr.shape}")
+        if arr.shape[0] != n0:
+            raise ValueError(
+                f"row count mismatch: {keys[0]} has {n0} rows, {k} has {arr.shape[0]}"
+            )
+        if arr.shape[1] != _c0:
+            raise ValueError(
+                f"class-count mismatch: {keys[0]} has {_c0} classes, {k} has {arr.shape[1]}"
+            )
+    return np.concatenate(arrays, axis=1)
+
+
+def fit_logreg_meta(
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    X_val: np.ndarray,
+    y_val: np.ndarray,
+    C_grid: Sequence[float] = (0.25, 1.0, 4.0),
+    seed: int = 123,
+) -> Tuple[object, Dict[str, float]]:
+    """Fit a multinomial LogReg stacking head; select ``C`` by val macro-F1.
+
+    Trains on OOF concatenated probability features. Returns
+    ``(fitted_estimator, {"C": ..., "val_macro_f1": ...})``.
+    """
+
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import f1_score
+
+    if not C_grid:
+        raise ValueError("C_grid must be non-empty")
+
+    best_clf = None
+    best_c = None
+    best_f1 = -1.0
+    for C in C_grid:
+        clf = LogisticRegression(
+            C=float(C),
+            solver="lbfgs",
+            max_iter=1000,
+            random_state=seed,
+        )
+        clf.fit(X_train, y_train)
+        pred = clf.predict(X_val)
+        f1 = float(f1_score(y_val, pred, average="macro", zero_division=0))
+        if f1 > best_f1:
+            best_f1 = f1
+            best_c = float(C)
+            best_clf = clf
+    assert best_clf is not None and best_c is not None
+    return best_clf, {"C": best_c, "val_macro_f1": best_f1}
+
+
 def _format_prob_dict(probs: np.ndarray, label_map: LabelMap, decimals: int = 3) -> str:
     parts = [
         f"{label_map.id2label[i]}={probs[i]:.{decimals}f}"

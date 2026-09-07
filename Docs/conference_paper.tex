@@ -394,15 +394,21 @@ held-out test set using accuracy, weighted F1, and per-class F1 for the three mi
 emotions (Fear, Anger, Surprise).
 
 \textbf{Ensemble comparison.} Table~\ref{tab:ensemble} compares the proposed stacked
-ensemble against (i)~Gemma-2-9B-it zero-shot prompting on the same structured
-meta-prompts; (ii)~published monolingual and multilingual transformer results on
-UIT-VSMEC (CafeBERT and XLM-RoBERTa-Large from VLUE \cite{do2024vlue}, ViSoBERT
-\cite{nguyen2024visobert}); (iii)~the MLR pipeline with preprocessing and key-clause
-extraction \cite{nguyen2020exploiting}; and (iv)~the GRU--CNN--BiLSTM--LSTM neural
-ensemble \cite{huynh2020ensemble}. For context, the original UIT-VSMEC benchmark
-CNN+word2vec baseline \cite{ho2020emotion} reached 59.74\% weighted F1 but is omitted
-from Table~\ref{tab:ensemble} because it predates the transformer-centric comparison
-protocol used in our evaluation.
+ensemble against (i)~two in-house fusion baselines that use the same five
+out-of-fold class-probability vectors and the same leakage-controlled protocol, but
+do not observe the original sentence: weighted soft voting (accuracy-normalized
+convex combination of the five probability vectors, then $\arg\max$) and a
+multinomial logistic-regression stacking classifier trained on the concatenated
+35-dimensional OOF probability vector, with the regularization parameter $C$
+selected on validation macro-F1; (ii)~Gemma-2-9B-it zero-shot prompting on the same
+structured meta-prompts; (iii)~published monolingual and multilingual transformer
+results on UIT-VSMEC (CafeBERT and XLM-RoBERTa-Large from VLUE \cite{do2024vlue},
+ViSoBERT \cite{nguyen2024visobert}); (iv)~the MLR pipeline with preprocessing and
+key-clause extraction \cite{nguyen2020exploiting}; and (v)~the GRU--CNN--BiLSTM--LSTM
+neural ensemble \cite{huynh2020ensemble}. For context, the original UIT-VSMEC
+benchmark CNN+word2vec baseline \cite{ho2020emotion} reached 59.74\% weighted F1 but
+is omitted from Table~\ref{tab:ensemble} because it predates the transformer-centric
+comparison protocol used in our evaluation.
 
 
 \FloatBarrier
@@ -481,6 +487,8 @@ more than surface variation alone.
 Method & Acc. & W-F1 & M-F1 \\
 \midrule
 \textbf{Proposed (stacked + QLoRA Gemma)} & \textbf{0.7023} & \textbf{0.7022} & \textbf{0.6831} \\
+Weighted soft voting (ours)               & --     & --     & -- \\
+LogReg stacking meta (ours)               & --     & --     & -- \\
 Gemma zero-shot (ours)                    & 0.6864 & 0.6809 & --- \\
 MLR + preprocessing \cite{nguyen2020exploiting} & 0.6436 & 0.6440 & --- \\
 CafeBERT \cite{do2024vlue}                & ---    & 0.6612 & --- \\
@@ -488,7 +496,7 @@ ViSoBERT \cite{nguyen2024visobert}        & 0.6810 & 0.6837 & --- \\
 XLM-RoBERTa-Large \cite{do2024vlue}        & 0.6137 & 0.6020 & --- \\
 GRU--CNN--BiLSTM--LSTM \cite{huynh2020ensemble} & --- & --- & 0.6579 \\
 \bottomrule
-\multicolumn{4}{@{}l}{\footnotesize W-F1: weighted F1;\enspace M-F1: macro F1;\enspace ---: not reported.} \\
+\multicolumn{4}{@{}l}{\footnotesize W-F1: weighted F1;\enspace M-F1: macro F1;\enspace ---: not reported;\enspace --: fill from notebook 07 \texttt{ensemble\_summary.json}.} \\
 \end{tabular}
 \end{table}
 
@@ -496,11 +504,25 @@ Table~\ref{tab:ensemble} reports the full UIT-VSMEC benchmark comparison. The pr
 framework achieves 70.23\% accuracy and 70.22\% weighted F1, establishing a new
 state-of-the-art and surpassing CNN+word2vec \cite{ho2020emotion} by over 10 percentage points in weighted F1.
 
-A 2.13 percentage-point gain in weighted F1 over Gemma zero-shot (70.22\% vs 68.09\%) confirms that QLoRA fine-tuning on
-the structured dataset yields a meaningful gain beyond zero-shot LLM inference.
-The best augmented single model (CafeBERT, 67.10\% W-F1) trails the full ensemble by
-3.1 percentage points in weighted F1 (67.10\% vs 70.22\%), showing that the meta-learner successfully integrates heterogeneous BERT
-and TF-IDF signals beyond any individual classifier.
+The two in-house fusion rows isolate the contribution of the LLM meta-learner from
+ordinary stacking. Weighted soft voting tests \emph{fixed} fusion: the same
+accuracy-normalized mix already provided to Gemma as a consensus summary. LogReg
+stacking tests a \emph{trainable linear} meta-classifier on the concatenated
+probability vectors alone (no sentence). Zero-shot Gemma tests the LLM without SFT.
+The proposed QLoRA meta-model is justified only if it outperforms both fusion
+baselines on weighted F1; that gap, if present, is attributable to
+text-conditioned, instance-specific fusion rather than to stacking in general.
+If it merely matches LogReg stacking, a linear meta-head on probability vectors is
+sufficient and the LLM is not justified. Fill the two `--` rows from notebook 07
+before claiming this gap.
+
+A 2.13 percentage-point gain in weighted F1 over Gemma zero-shot (70.22\% vs 68.09\%)
+shows that QLoRA fine-tuning on the structured dataset helps relative to zero-shot
+inference, but does not by itself show that Gemma is a better meta-learner than
+LogReg stacking. The best augmented single model (CafeBERT, 67.10\% W-F1) trails the
+full ensemble by 3.1 percentage points in weighted F1 (67.10\% vs 70.22\%), showing
+that the stacked system integrates heterogeneous BERT and TF-IDF signals beyond any
+individual classifier.
 
 % -----------------------------------------------------------------------
 \section{Conclusion}
@@ -523,12 +545,14 @@ In the second stage, stacking heterogeneous BERT and TF-IDF signals through a
 QLoRA-fine-tuned meta-model produced a new state-of-the-art on UIT-VSMEC:
 70.23\% accuracy, 70.22\% weighted F1, and 68.31\% macro F1, exceeding the
 original CNN+word2vec benchmark by over 10 percentage points \cite{ho2020emotion}.
-The full ensemble surpassed zero-shot Gemma prompting by 2.13 percentage points in weighted F1
-and the best augmented single model (CafeBERT) by approximately 3.1 percentage points in weighted F1,
-demonstrating that QLoRA meta-learning over structured ensemble signals yields
-meaningful gains beyond either component alone. Together, these results confirm that
-LLMs are effective both as offline data generators and as inference-time meta-learners
-in low-resource, class-imbalanced Vietnamese NLP.
+The full ensemble surpassed zero-shot Gemma prompting by 2.13 percentage points in
+weighted F1 and the best augmented single model (CafeBERT) by approximately 3.1
+percentage points in weighted F1. Whether QLoRA meta-learning is warranted beyond
+ordinary stacking is settled by the two in-house fusion baselines---weighted soft
+voting and LogReg stacking on the same probability vectors---which share the OOF
+protocol but never see the sentence. Together, these results confirm that LLMs are
+effective as offline data generators; their role as inference-time meta-learners
+holds only if the QLoRA model outperforms those fusion baselines.
 
 \subsection{Future Work}
 
