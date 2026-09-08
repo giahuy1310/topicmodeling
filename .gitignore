@@ -41,4 +41,19 @@ tm_research/data/
 tm_research/ensemble/artifacts/
 tm_research/VSFC_ensemble/artifacts/
 
+# Local 12GB-PC ensemble scratch (HF cache)
+.ensemble_tmp/
 
+
+tm_research/.env
+#python files
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw
+*.pyz
+*.pywz
+*.pyzw
