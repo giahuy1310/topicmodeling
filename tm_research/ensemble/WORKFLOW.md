@@ -42,7 +42,7 @@ Vietnamese emotion classification using a **stacked ensemble**: five heterogeneo
           │        EVALUATION (notebook 07)                      │
           │                                                      │
           │  LoRA meta-model vs. baselines on test set           │
-          │  (weighted-avg argmax, best single model, zero-shot) │
+          │  (weighted soft voting, LogReg stacking, zero-shot)  │
           └─────────────────────────────────────────────────────┘
 ```
 
@@ -162,12 +162,17 @@ The test set is evaluated against four systems:
 
 | System | Description |
 |--------|-------------|
+| `weighted_soft_voting` | Accuracy-normalized mix of the five test probability vectors, then argmax |
+| `logreg_meta` | Multinomial LogReg on concatenated OOF probability vectors (C tuned on val macro-F1) |
 | `zero_shot_gemma` | Gemma-2-9B-it with the same prompts but no LoRA |
 | `lora_gemma_meta` | LoRA-adapted Gemma-2-9B-it (the full system) |
 
-Metrics: accuracy, macro recall, macro F1, weighted F1, per-class F1, confusion matrix.
+CPU fusion baselines (`weighted_soft_voting`, `logreg_meta`) run before Gemma generation and are written immediately to `classical_meta_baselines.json`. Gemma is justified as a meta-model only if it beats both fusion baselines on weighted F1.
+
+Metrics: accuracy, weighted F1, macro F1, per-class F1, confusion matrix.
 
 **Artifacts produced:**
+- `artifacts/metrics/classical_meta_baselines.json`
 - `artifacts/metrics/ensemble_summary.json`
 - `Confusion_matrix/ensemble_llm_meta.png`
 
@@ -232,6 +237,17 @@ Three strategies are implemented in `utils_stacking.py`; notebook 05 uses `compu
 | `compute_weights` | `w_i = acc_i / Σ acc_j` | Default — proportional to validation accuracy |
 | `compute_weights_softmax` | `w_i = softmax(acc_i / T)` | `temperature < 1` sharpens toward the best model |
 | `compute_weights_lsq` | NNLS minimizing log-loss on val | Optimal weights when base models are miscalibrated |
+
+---
+
+### Classical fusion baselines (notebook 07)
+
+| Method | Input | Training | Hyperparameters |
+|--------|-------|----------|-----------------|
+| `weighted_soft_voting` | Five test probability matrices | None (fixed val-accuracy weights from `weights.json`) | `w_i = acc_i / Σ acc_j` |
+| `logreg_meta` | Concatenated OOF vectors `(N, 5×C)` | Fit on train OOF features; `C` by val macro-F1 | `C ∈ {0.25, 1.0, 4.0}`, `solver=lbfgs`, `max_iter=1000`, `random_state=123` |
+
+Neither method sees the original sentence. Gemma QLoRA additionally conditions on `[TEXT]` + `[WEIGHTED_AVG]` + `[STACK]`.
 
 ---
 
@@ -304,6 +320,7 @@ artifacts/
 │   ├── vibert.json
 │   ├── logreg.json
 │   ├── svc.json
+│   ├── classical_meta_baselines.json
 │   └── ensemble_summary.json
 ├── meta_jsonl/
 │   ├── train.jsonl                 # OOF probs + gold completions
