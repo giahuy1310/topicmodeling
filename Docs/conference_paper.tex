@@ -11,9 +11,15 @@
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{tikz}
-\usepackage{placeins}
 \usepackage{float}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,backgrounds}
+
+% Keep columns from stretching when a float cannot fill the page.
+\raggedbottom
+\setcounter{topnumber}{2}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.8}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -43,7 +49,7 @@ nttsang@hcmiu.edu.vn}
 % -----------------------------------------------------------------------
 \section*{Abstract}
 Fine-grained emotion recognition from Vietnamese social-media text is a difficult natural language processing problem due to the language's low-resource status and severe class
-imbalance in available corpora. This paper proposes a two-stage framework for Vietnamese emotion recognition, evaluated on UIT-VSMEC, a seven-class Vietnamese social-media emotion corpus. In the first stage, we apply targeted data augmentation using Gemini-2.5-Flash via few-shot prompting, generating synthetic examples and paraphrasing existing ones for underrepresented emotion classes (Fear, Anger, Surprise). In the second stage, we construct a stacked ensemble of five heterogeneous base classifiers (PhoBERT, CafeBERT, ViBERT, Logistic Regression, LinearSVC), whose out-of-fold probability estimates are aggregated into a structured dataset and used to fine-tune a Gemma-2-9B-it meta-model with QLoRA (4-bit quantization). The full framework achieves 70.23\% accuracy, 70.22\% weighted F1, and 68.31\% macro F1 on UIT-VSMEC, surpassing the prior CNN+word2vec weighted F1 of 59.74\% and outperforming zero-shot Gemma prompting, published transformer baselines, and classical ensemble methods.
+imbalance in available corpora. This paper addresses a methodological gap on this problem: existing ensembles typically fuse base-model probabilities with fixed rules or linear stacking and do not condition on the raw sentence, while large language models are used mainly as offline generators or as static prompts. We propose a two-stage framework, evaluated on UIT-VSMEC, a seven-class Vietnamese social-media emotion corpus. In Stage~1, Gemini-2.5-Flash generates and paraphrases minority-class examples (Fear, Anger, Surprise) via 10-shot prompting. In Stage~2, five heterogeneous base classifiers (PhoBERT, CafeBERT, ViBERT, Logistic Regression, LinearSVC) produce out-of-fold probability distributions, and a QLoRA-fine-tuned Gemma-2-9B-it meta-model consumes the raw sentence and those five distributions jointly. The full framework reaches 70.23\% accuracy, 70.33\% weighted F1, and 68.00\% macro F1. On the same out-of-fold features, LogReg stacking reaches 68.43\% weighted F1 and weighted voting reaches 68.73\%, while the text-conditioned QLoRA Gemma meta-model reaches 70.33\%.
 
 \begin{IEEEkeywords}
 Vietnamese NLP, emotion recognition, data augmentation, large language models,
@@ -82,26 +88,30 @@ minority emotions such as \textit{Surprise} ($\sim$4.5\%) and \textit{Anger}
 ($\sim$6.9\%) are severely underrepresented. Together, these constraints limit the
 robustness and generalization of individual classifiers.
 
-We address both obstacles with a unified two-stage framework. In the first stage, we
-exploit the generative capabilities of a large language model (LLM), specifically
-Gemini-2.5-Flash \cite{ding2024augmentation}, to perform targeted data augmentation
-for minority emotion classes using 10-shot prompting. In the second stage, we build a
-stacked ensemble whose base predictions are aggregated into a structured dataset and
-used to fine-tune a Gemma-2-9B-it meta-model with parameter-efficient QLoRA.
+These obstacles coincide with a methodological gap. Existing ensembles typically fuse
+class probabilities through fixed rules (voting) or linear models (logistic-regression
+stacking) that do not condition on the raw sentence, while large language models (LLMs)
+are used mainly as offline data generators or as static prompts. We address this gap
+with a two-stage framework. In Stage~1, Gemini-2.5-Flash \cite{ding2024augmentation}
+performs targeted data augmentation for minority emotion classes using 10-shot
+prompting. In Stage~2, five heterogeneous base classifiers (PhoBERT, CafeBERT, ViBERT,
+Logistic Regression, LinearSVC) produce out-of-fold probability estimates; a
+Gemma-2-9B-it meta-model is then fine-tuned with parameter-efficient QLoRA on the
+raw sentence and those five distributions jointly.
 
 The main contributions of this paper are:
 \begin{enumerate}
   \item An LLM-based augmentation protocol that generates and paraphrases Vietnamese
-        social-media sentences for minority emotion classes, demonstrably improving
-        minority-class F1 scores with a controlled 10-shot prompting strategy.
-  \item A stacked ensemble framework that combines Vietnamese BERT models and
-        classical TF-IDF classifiers with a QLoRA-fine-tuned Gemma meta-learner,
-        achieving accuracy-weighted aggregation of diverse classifier signals.
-  \item Empirical validation of the proposed Vietnamese emotion recognition
-        framework on UIT-VSMEC, establishing a new state-of-the-art of
-        70.23\% accuracy, 70.22\% weighted F1, and 68.31\% macro F1 and
-        outperforming zero-shot LLM prompting, published BERT baselines, and
-        prior ensemble methods.
+        social-media sentences for minority emotion classes with a controlled
+        10-shot prompting strategy.
+  \item A stacked ensemble in which a QLoRA-fine-tuned Gemma meta-learner jointly
+        consumes the raw sentence and five base-model probability distributions.
+  \item Empirical validation on UIT-VSMEC under a shared split and preprocessing
+        pipeline, reaching 70.23\% accuracy, 70.33\% weighted F1, and 68.00\%
+        macro F1. On the same out-of-fold features, LogReg stacking reaches
+        68.43\% weighted F1 and weighted voting reaches 68.73\%. Same-protocol
+        CafeBERT and ViSoBERT reruns and zero-shot Gemma prompting are also
+        reported for comparison.
 \end{enumerate}
 
 % -----------------------------------------------------------------------
@@ -132,22 +142,29 @@ and back-translation on SST-2 and SNIPS; Whitehouse et al.\
 \cite{whitehouse2023llmaug} extend LLM augmentation to cross-lingual settings; \"{U}veges and Ring
 \cite{uveges2025synthetic} confirm 10-shot LLM prompting yields macro-F1 gains for
 underrepresented emotion classes. However, prior work treats the LLM as an offline
-generator only, and prompt design for fine-grained Vietnamese emotion categories
-remains underexplored. On the ensemble side, Thin et al.\ \cite{thin2024ensemble}
+generator only, or as a static zero-/few-shot classifier, and prompt design for
+fine-grained Vietnamese emotion categories remains underexplored. On the ensemble
+side, Thin et al.\ \cite{thin2024ensemble}
 obtain 94.03\% weighted F1 on VSFC \cite{nguyen2018vsfc} via soft-voting over five Vietnamese transformers;
 Niimi \cite{niimi2025ensemble} unifies multiple LLM inferences through bagging and
-weighted averaging. Thin et al.\ \cite{thin2024prompt} further evaluate zero- and
+weighted averaging. Both fuse probabilities with fixed rules; linear
+logistic-regression stacking likewise does not condition on the raw sentence.
+Thin et al.\ \cite{thin2024prompt} further evaluate zero- and
 few-shot LLM prompting for Vietnamese sentiment, while Zhang and Han
 \cite{zhang2025commonsense} integrate commonsense knowledge into fine-grained
-aspect-level analysis, highlighting leakage risks with generative models. Our work
-extends these directions by using Gemini-2.5-Flash for targeted augmentation and as a
-QLoRA-fine-tuned meta-learner over heterogeneous ensemble signals.
+aspect-level analysis, highlighting leakage risks with generative models. This
+leaves a methodological gap for Vietnamese emotion recognition: using an LLM both
+to generate minority-class data and to fuse heterogeneous ensemble probabilities
+while conditioning on the sentence. We address that gap with the two-stage
+framework in Section~\ref{sec:methodology}.
 
-\FloatBarrier
 % -----------------------------------------------------------------------
 \section{Methodology}
+\label{sec:methodology}
 
-\begin{figure}[!t]
+This study proposes an end-to-end pipeline for processing Vietnamese social media data and recognizing emotions in sentences, as illustrated in Fig.~\ref{fig:pipeline}. It consists of four stages: LLM data augmentation, text preprocessing, base classifier training with cross validation stacking, and meta-model fine-tuning.
+
+\begin{figure}[H]
 \centering
 \begin{tikzpicture}[
   node distance=0.32cm and 0.18cm,
@@ -190,9 +207,19 @@ cross validation probabilities form a structured dataset for QLoRA Gemma fine-tu
 \label{fig:pipeline}
 \end{figure}
 
-This study proposes an end-to-end pipeline for processing Vietnamese social media data and recognizing emotions in sentences, as illustrated in Fig.~\ref{fig:pipeline}. It consists of four stages: LLM data augmentation, text preprocessing, base classifier training with cross validation stacking, and meta-model fine-tuning.
-
 \subsection{LLM-based Data Augmentation}
+
+UIT-VSMEC exhibits a 6.4:1 imbalance between the most and least frequent classes. We
+address this by prompting Gemini-2.5-Flash \cite{ding2024augmentation} via the Gemini chat interface to generate additional training examples for the
+three most underrepresented emotions: Fear, Anger, and Surprise. Two complementary
+strategies are applied: (i)~\textit{generated}---the model synthesizes entirely new
+Vietnamese sentences conditioned on an emotion label and 10 randomly sampled in-context
+examples, creating novel scenarios not present in the original corpus;
+(ii)~\textit{paraphrased}---the model rewrites existing annotated sentences
+with linguistic variation while preserving the target emotion and original semantics.
+Each class is augmented to a target of 1,500 examples per strategy. Augmentation operates
+on the raw training split before any preprocessing.
+Fig.~\ref{fig:aug_pipeline} shows the six-stage pipeline.
 
 \begin{figure}[H]
 \centering
@@ -220,18 +247,6 @@ This study proposes an end-to-end pipeline for processing Vietnamese social medi
 \caption{Synthetic data creation pipeline for minority-class augmentation.}
 \label{fig:aug_pipeline}
 \end{figure}
-
-UIT-VSMEC exhibits a 6.4:1 imbalance between the most and least frequent classes. We
-address this by prompting Gemini-2.5-Flash \cite{ding2024augmentation} via the Gemini chat interface to generate additional training examples for the
-three most underrepresented emotions: Fear, Anger, and Surprise. Two complementary
-strategies are applied: (i)~\textit{generated}---the model synthesizes entirely new
-Vietnamese sentences conditioned on an emotion label and 10 randomly sampled in-context
-examples, creating novel scenarios not present in the original corpus;
-(ii)~\textit{paraphrased}---the model rewrites existing annotated sentences
-with linguistic variation while preserving the target emotion and original semantics.
-Each class is augmented to a target of 1,500 examples per strategy. Augmentation operates
-on the raw training split before any preprocessing.
-Fig.~\ref{fig:aug_pipeline} shows the six-stage pipeline.
 
 The pipeline operates as follows:
 \begin{enumerate}
@@ -362,7 +377,7 @@ probability arrays. Classifier metrics are stored as JSON artifacts.
 
 \textbf{Weights and structured dataset.}
 Each base model is assigned a weight proportional to its validation-set accuracy: a model's weight equals its individual accuracy divided by the sum of all five models' accuracies. This produces a set of normalized weights that sum to one, so higher-performing models contribute more to the final prediction.
-For each training example, a structured input is then assembled that combines the original sentence, each base model's predicted probability distribution over the seven emotion classes, and the overall weighted-average prediction. This combined representation captures both each model's individual confidence and the degree of disagreement across models.
+For each training example, a structured input is then assembled that combines the original sentence, each base model's predicted probability distribution over the seven emotion classes, and the overall weighted-average prediction. This combined representation captures both each model's individual confidence and the degree of disagreement across models. The meta-prompt therefore presents the sentence and the five probability distributions together, so the meta-learner can condition fusion on the raw text as well as on the ensemble signals.
 
 \textbf{QLoRA fine-tuning.}
 Gemma-2-9B-it serves as the meta-learner. The model is
@@ -370,7 +385,8 @@ fine-tuned with QLoRA (4-bit NF4 quantization, rank-16 adapters) using completio
 cross-entropy loss on the emotion label as the target output. Training
 uses the structured training dataset built from out-of-fold predictions (unbiased by construction), which
 mitigates information leakage into the meta-model \cite{sasso2022transfer}. At inference, the model generates the
-emotion label conditioned on the structured meta-prompt for each test example.
+emotion label jointly conditioned on the sentence and the five base-model probability
+distributions in the structured meta-prompt.
 
 % -----------------------------------------------------------------------
 \section{Experiments}
@@ -380,7 +396,7 @@ emotion label conditioned on the structured meta-prompt for each test example.
 UIT-VSMEC \cite{ho2020emotion} contains 6,927 human-annotated sentences drawn from
 Vietnamese social-media platforms, covering seven emotion labels: Enjoyment, Sadness,
 Fear, Anger, Disgust, Surprise, and Other. We follow the standard 8:1:1 split protocol,
-yielding approximately 5,548 training, 686 validation, and 693 test sentences after
+yielding approximately 5,548 training, 686 validation, and 692 test sentences after
 preprocessing. The training set is augmented to 1,500 examples per class for the minority
 classes before preprocessing.
 
@@ -393,25 +409,24 @@ data---original, paraphrased-augmented, and generated-augmented---and evaluated 
 held-out test set using accuracy, weighted F1, and per-class F1 for the three minority
 emotions (Fear, Anger, Surprise).
 
-\textbf{Ensemble comparison.} Table~\ref{tab:ensemble} compares the proposed stacked
-ensemble against (i)~two in-house fusion baselines that use the same five
-out-of-fold class-probability vectors and the same leakage-controlled protocol, but
-do not observe the original sentence: weighted soft voting (accuracy-normalized
-convex combination of the five probability vectors, then $\arg\max$) and a
-multinomial logistic-regression stacking classifier trained on the concatenated
-35-dimensional OOF probability vector, with the regularization parameter $C$
-selected on validation macro-F1; (ii)~Gemma-2-9B-it zero-shot prompting on the same
-structured meta-prompts; (iii)~published monolingual and multilingual transformer
-results on UIT-VSMEC (CafeBERT and XLM-RoBERTa-Large from VLUE \cite{do2024vlue},
-ViSoBERT \cite{nguyen2024visobert}); (iv)~the MLR pipeline with preprocessing and
-key-clause extraction \cite{nguyen2020exploiting}; and (v)~the GRU--CNN--BiLSTM--LSTM
-neural ensemble \cite{huynh2020ensemble}. For context, the original UIT-VSMEC
-benchmark CNN+word2vec baseline \cite{ho2020emotion} reached 59.74\% weighted F1 but
-is omitted from Table~\ref{tab:ensemble} because it predates the transformer-centric
-comparison protocol used in our evaluation.
+\textbf{Ensemble comparison.} Table~\ref{tab:ensemble} has two blocks. The upper
+block uses our split, preprocessing, and 692-sentence test set. It compares the
+stacked QLoRA Gemma meta-model with (i)~two conventional fusion baselines on the
+same five out-of-fold class-probability vectors, without the original sentence:
+weighted soft voting (accuracy-normalized convex combination, then $\arg\max$) and
+a multinomial logistic-regression stacking classifier on the concatenated
+35-dimensional OOF vector, with $C$ selected on validation macro-F1;
+(ii)~Gemma-2-9B-it zero-shot prompting on the same structured meta-prompts; and
+(iii)~CafeBERT and ViSoBERT rerun on the same training, validation, and test
+files. The lower block reports previously published UIT-VSMEC scores (CafeBERT and
+XLM-RoBERTa-Large from VLUE \cite{do2024vlue}, ViSoBERT \cite{nguyen2024visobert},
+the MLR pipeline \cite{nguyen2020exploiting}, and the GRU--CNN--BiLSTM--LSTM
+ensemble \cite{huynh2020ensemble}) for context only; those papers may differ in
+preprocessing, training, and evaluation, so we do not treat them as same-protocol
+baselines or as a state-of-the-art comparison. The original CNN+word2vec benchmark
+\cite{ho2020emotion} (59.74\% weighted F1) is omitted from the table for the same
+reason.
 
-
-\FloatBarrier
 % -----------------------------------------------------------------------
 \section{Results and Analysis}
 
@@ -419,8 +434,16 @@ comparison protocol used in our evaluation.
 
 Table~\ref{tab:augmentation} reports CafeBERT performance across the three training
 conditions.
+Both augmentation strategies yield consistent improvements. The generated
+data condition produces the largest gains, raising accuracy from 63.44\% to 67.03\%
+and weighted F1 from 62.8\% to 67.1\%. Minority-class gains are particularly pronounced:
+Anger F1 rises from 38\% to 46\% (a gain of 8 percentage points), confirming that
+synthetic generation effectively addresses the most severely imbalanced classes. Fear and
+Surprise also improve, though more modestly, reflecting their lower initial imbalance.
+Paraphrasing yields intermediate improvements, suggesting that linguistic variation alone
+is beneficial but less impactful than generating entirely new examples.
 
-\begin{table}[H]
+\begin{table}[t]
 \caption{Impact of LLM augmentation on CafeBERT (UIT-VSMEC test set)}
 \label{tab:augmentation}
 \centering
@@ -435,17 +458,16 @@ Paraphrased   & 0.6676 & 0.6682 & 0.67 & 0.42 & 0.61 \\
 \end{tabular}
 \end{table}
 
-Both augmentation strategies yield consistent improvements. The generated
-data condition produces the largest gains, raising accuracy from 63.44\% to 67.03\%
-and weighted F1 from 62.8\% to 67.1\%. Minority-class gains are particularly pronounced:
-Anger F1 rises from 38\% to 46\% (a gain of 8 percentage points), confirming that
-synthetic generation effectively addresses the most severely imbalanced classes. Fear and
-Surprise also improve, though more modestly, reflecting their lower initial imbalance.
-Paraphrasing yields intermediate improvements, suggesting that linguistic variation alone
-is beneficial but less impactful than generating entirely new examples.
 Table~\ref{tab:synthetic_quality} further analyses the quality of the generated sentences.
+Zero exact and near-duplicate test-set overlap confirms no evaluation leakage in the
+synthetic corpus. An overall fidelity score of 0.776 shows that generated text is
+statistically close to original social-media sentences; the KL divergence of 0.164 reflects
+intentional upsampling of minority classes, not a quality failure. Lower Distinct-2/3
+values reveal moderate lexical repetition from 10-shot conditioning, yet generated data
+still outperforms paraphrasing because novel scenarios expand minority-class coverage
+more than surface variation alone.
 
-\begin{table}[H]
+\begin{table}[t]
 \caption{Quality of LLM-generated training sentences (5,010 synthetic vs.\ 5,548 original)}
 \label{tab:synthetic_quality}
 \centering
@@ -465,20 +487,22 @@ Emotion distribution KL div. & --- & 0.164 \\
 \end{tabular}
 \end{table}
 
-Zero exact and near-duplicate test-set overlap confirms no evaluation leakage in the
-synthetic corpus. An overall fidelity score of 0.776 shows that generated text is
-statistically close to original social-media sentences; the KL divergence of 0.164 reflects
-intentional upsampling of minority classes, not a quality failure. Lower Distinct-2/3
-values reveal moderate lexical repetition from 10-shot conditioning, yet generated data
-still outperforms paraphrasing because novel scenarios expand minority-class coverage
-more than surface variation alone.
-
-\FloatBarrier
 \subsection{Ensemble Performance}
 
-\begin{table}[H]
-\caption{Performance comparison of ensemble learning methods and baselines on UIT-VSMEC
-(test set). Published transformer rows follow VLUE/ViSoBERT benchmark settings.}
+Table~\ref{tab:ensemble} reports two comparisons. Under our split and
+preprocessing, the stacked QLoRA system reaches 70.23\% accuracy, 70.33\% weighted
+F1, and 68.00\% macro F1. The fair transformer baselines are CafeBERT and ViSoBERT
+retrained on the same files: CafeBERT is the stronger rerun at 64.99\% weighted F1,
+and ViSoBERT reaches 59.66\%. The proposed method therefore improves by 5.34
+percentage points in weighted F1 over same-protocol CafeBERT and by 10.67 points
+over same-protocol ViSoBERT. Published CafeBERT (66.12\%) and ViSoBERT (68.37\%)
+scores appear only in the lower block. They come from different preprocessing,
+training, and evaluation settings, so a 70.33\% vs.\ 68.37\% gap is not a
+same-protocol state-of-the-art claim; on this pipeline the ViSoBERT rerun is
+59.66\% weighted F1.
+
+\begin{table}[t]
+\caption{UIT-VSMEC test-set comparison}
 \label{tab:ensemble}
 \centering
 \footnotesize
@@ -486,43 +510,50 @@ more than surface variation alone.
 \toprule
 Method & Acc. & W-F1 & M-F1 \\
 \midrule
-\textbf{Proposed (stacked + QLoRA Gemma)} & \textbf{0.7023} & \textbf{0.7022} & \textbf{0.6831} \\
-Weighted soft voting (ours)               & --     & --     & -- \\
-LogReg stacking meta (ours)               & --     & --     & -- \\
-Gemma zero-shot (ours)                    & 0.6864 & 0.6809 & --- \\
+\multicolumn{4}{@{}l}{\textit{Same protocol (ours)}} \\
+\textbf{Proposed (stacked + QLoRA Gemma)} & \textbf{0.7023} & \textbf{0.7033} & \textbf{0.6800} \\
+Weighted soft voting (ours)               & 0.6879 & 0.6873 & 0.6542 \\
+LogReg stacking meta (ours)               & 0.6864 & 0.6843 & 0.6459 \\
+Gemma zero-shot (ours)                    & 0.6879 & 0.6853 & 0.6550 \\
+CafeBERT, same split (ours)               & 0.6474 & 0.6499 & 0.6142 \\
+ViSoBERT, same split (ours)               & 0.5997 & 0.5966 & 0.5604 \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Published scores (different protocol)}} \\
 MLR + preprocessing \cite{nguyen2020exploiting} & 0.6436 & 0.6440 & --- \\
 CafeBERT \cite{do2024vlue}                & ---    & 0.6612 & --- \\
 ViSoBERT \cite{nguyen2024visobert}        & 0.6810 & 0.6837 & --- \\
 XLM-RoBERTa-Large \cite{do2024vlue}        & 0.6137 & 0.6020 & --- \\
 GRU--CNN--BiLSTM--LSTM \cite{huynh2020ensemble} & --- & --- & 0.6579 \\
 \bottomrule
-\multicolumn{4}{@{}l}{\footnotesize W-F1: weighted F1;\enspace M-F1: macro F1;\enspace ---: not reported;\enspace --: fill from notebook 07 \texttt{ensemble\_summary.json}.} \\
-\end{tabular}
+\end{tabular}\\[2pt]
+{\raggedright\footnotesize
+Note. Upper block: same split, preprocessing, and 692-sentence test set.
+Lower block: previously published scores under other protocols; not used to
+claim state-of-the-art.
+W-F1: weighted F1;\enspace M-F1: macro F1;\enspace ---: not reported.\par}
 \end{table}
 
-Table~\ref{tab:ensemble} reports the full UIT-VSMEC benchmark comparison. The proposed
-framework achieves 70.23\% accuracy and 70.22\% weighted F1, establishing a new
-state-of-the-art and surpassing CNN+word2vec \cite{ho2020emotion} by over 10 percentage points in weighted F1.
+The two conventional fusion rows compare the QLoRA meta-learner with ordinary
+stacking on the same five out-of-fold class-probability vectors. Weighted soft
+voting applies \emph{fixed} fusion of those vectors (already supplied to Gemma as a
+consensus summary). LogReg stacking trains a \emph{linear} meta-classifier on the
+concatenated 35-dimensional OOF vector, without the sentence, with $C$ selected on
+validation macro-F1. Zero-shot Gemma uses the same structured meta-prompts without
+supervised fine-tuning. QLoRA Gemma attains 70.33\% weighted F1, against 68.73\%
+for voting ($+$1.60) and 68.43\% for LogReg ($+$1.90). The macro-F1 relative to
+LogReg is $+$3.41 (68.00\% vs.\ 64.59\%). All three stacking systems use the same
+five base models and the same OOF signals; QLoRA Gemma additionally conditions on
+the sentence. This comparison does not evaluate non-linear heads such as MLP or
+XGBoost.
 
-The two in-house fusion rows isolate the contribution of the LLM meta-learner from
-ordinary stacking. Weighted soft voting tests \emph{fixed} fusion: the same
-accuracy-normalized mix already provided to Gemma as a consensus summary. LogReg
-stacking tests a \emph{trainable linear} meta-classifier on the concatenated
-probability vectors alone (no sentence). Zero-shot Gemma tests the LLM without SFT.
-The proposed QLoRA meta-model is justified only if it outperforms both fusion
-baselines on weighted F1; that gap, if present, is attributable to
-text-conditioned, instance-specific fusion rather than to stacking in general.
-If it merely matches LogReg stacking, a linear meta-head on probability vectors is
-sufficient and the LLM is not justified. Fill the two `--` rows from notebook 07
-before claiming this gap.
-
-A 2.13 percentage-point gain in weighted F1 over Gemma zero-shot (70.22\% vs 68.09\%)
-shows that QLoRA fine-tuning on the structured dataset helps relative to zero-shot
-inference, but does not by itself show that Gemma is a better meta-learner than
-LogReg stacking. The best augmented single model (CafeBERT, 67.10\% W-F1) trails the
-full ensemble by 3.1 percentage points in weighted F1 (67.10\% vs 70.22\%), showing
-that the stacked system integrates heterogeneous BERT and TF-IDF signals beyond any
-individual classifier.
+A 1.80 percentage-point gain in weighted F1 over zero-shot Gemma (70.33\% vs.\
+68.53\%) shows that QLoRA fine-tuning on the structured dataset helps relative to
+zero-shot inference. The best same-protocol single transformer (CafeBERT, 64.99\%
+weighted F1) trails the full ensemble by 5.34 points, showing that stacking
+heterogeneous BERT and TF-IDF signals goes beyond any individual classifier on this
+pipeline. The CafeBERT augmentation ablation in Table~\ref{tab:augmentation}
+(67.10\% weighted F1 on generated data) is a separate training-data study and is
+not the same-protocol CafeBERT baseline in Table~\ref{tab:ensemble}.
 
 % -----------------------------------------------------------------------
 \section{Conclusion}
@@ -530,10 +561,10 @@ individual classifier.
 \subsection{Summary}
 
 This paper proposed a two-stage framework for Vietnamese social-media emotion
-recognition: Gemini-2.5-Flash augmentation for minority classes, followed by a
-five-model stacked ensemble with a QLoRA-fine-tuned Gemma-2-9B-it meta-learner.
+recognition, addressing a methodological gap in how LLMs and ensembles are combined
+on this task.
 
-In the first stage, few-shot LLM augmentation consistently improved CafeBERT's
+In Stage~1, few-shot LLM augmentation consistently improved CafeBERT's
 performance across all three underrepresented emotion categories. Generated synthetic
 data---new sentences conditioned on 10 in-context examples---outperformed
 paraphrasing, raising weighted F1 from 62.8\% to 67.1\% and increasing Anger F1 by
@@ -541,18 +572,18 @@ paraphrasing, raising weighted F1 from 62.8\% to 67.1\% and increasing Anger F1 
 corpus is statistically plausible (overall fidelity score 0.776, zero test-set leakage),
 establishing that new scenario coverage matters more than mere surface variation.
 
-In the second stage, stacking heterogeneous BERT and TF-IDF signals through a
-QLoRA-fine-tuned meta-model produced a new state-of-the-art on UIT-VSMEC:
-70.23\% accuracy, 70.22\% weighted F1, and 68.31\% macro F1, exceeding the
-original CNN+word2vec benchmark by over 10 percentage points \cite{ho2020emotion}.
-The full ensemble surpassed zero-shot Gemma prompting by 2.13 percentage points in
-weighted F1 and the best augmented single model (CafeBERT) by approximately 3.1
-percentage points in weighted F1. Whether QLoRA meta-learning is warranted beyond
-ordinary stacking is settled by the two in-house fusion baselines---weighted soft
-voting and LogReg stacking on the same probability vectors---which share the OOF
-protocol but never see the sentence. Together, these results confirm that LLMs are
-effective as offline data generators; their role as inference-time meta-learners
-holds only if the QLoRA model outperforms those fusion baselines.
+In Stage~2, stacking heterogeneous BERT and TF-IDF signals through a
+QLoRA-fine-tuned meta-model reached 70.23\% accuracy, 70.33\% weighted F1, and
+68.00\% macro F1 on UIT-VSMEC under our split and preprocessing. Relative to
+same-protocol reruns, this is 5.34 percentage points in weighted F1 above CafeBERT
+(64.99\%) and 10.67 points above ViSoBERT (59.66\%). Published transformer scores
+are not used as a state-of-the-art comparison because they follow different
+protocols. The full ensemble surpassed zero-shot Gemma prompting by 1.80
+percentage points in weighted F1 (70.33\% vs.\ 68.53\%). On the same out-of-fold
+probability features, weighted soft voting reached 68.73\% weighted F1 and
+logistic-regression stacking reached 68.43\%. Stage~1 uses the LLM to generate
+minority-class data; Stage~2 uses a QLoRA meta-learner that jointly consumes the
+sentence and the five base-model probability distributions.
 
 \subsection{Future Work}
 

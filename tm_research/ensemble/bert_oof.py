@@ -160,35 +160,44 @@ def _build_trainer(
         }
 
     fp16, bf16 = _device_precision_flags(cfg)
-    args = TrainingArguments(
-        output_dir=output_dir,
-        num_train_epochs=cfg.num_epochs,
-        per_device_train_batch_size=cfg.train_batch_size,
-        per_device_eval_batch_size=cfg.eval_batch_size,
-        gradient_accumulation_steps=cfg.grad_accum_steps,
-        learning_rate=cfg.learning_rate,
-        weight_decay=cfg.weight_decay,
-        warmup_ratio=cfg.warmup_ratio,
-        lr_scheduler_type=cfg.lr_scheduler_type,
-        adam_beta1=cfg.adam_beta1,
-        adam_beta2=cfg.adam_beta2,
-        adam_epsilon=cfg.adam_epsilon,
-        max_grad_norm=cfg.max_grad_norm,
-        eval_strategy="epoch",
-        save_strategy="epoch",
-        load_best_model_at_end=True,
-        metric_for_best_model=cfg.metric_for_best_model,
-        greater_is_better=True,
-        save_total_limit=1,
-        logging_steps=50,
-        fp16=fp16,
-        bf16=bf16,
-        report_to="none",
-        seed=seed,
-        data_seed=seed,
-    )
-
     import inspect
+
+    args_kwargs = {
+        "output_dir": output_dir,
+        "num_train_epochs": cfg.num_epochs,
+        "per_device_train_batch_size": cfg.train_batch_size,
+        "per_device_eval_batch_size": cfg.eval_batch_size,
+        "gradient_accumulation_steps": cfg.grad_accum_steps,
+        "learning_rate": cfg.learning_rate,
+        "weight_decay": cfg.weight_decay,
+        "lr_scheduler_type": cfg.lr_scheduler_type,
+        "adam_beta1": cfg.adam_beta1,
+        "adam_beta2": cfg.adam_beta2,
+        "adam_epsilon": cfg.adam_epsilon,
+        "max_grad_norm": cfg.max_grad_norm,
+        "save_strategy": "epoch",
+        "load_best_model_at_end": True,
+        "metric_for_best_model": cfg.metric_for_best_model,
+        "greater_is_better": True,
+        "save_total_limit": 1,
+        "logging_steps": 50,
+        "fp16": fp16,
+        "bf16": bf16,
+        "report_to": "none",
+        "seed": seed,
+        "data_seed": seed,
+    }
+    ta_params = inspect.signature(TrainingArguments.__init__).parameters
+    # v4: warmup_ratio. v5: warmup_ratio removed; warmup_steps accepts a float ratio in [0, 1).
+    if "warmup_ratio" in ta_params:
+        args_kwargs["warmup_ratio"] = cfg.warmup_ratio
+    elif "warmup_steps" in ta_params:
+        args_kwargs["warmup_steps"] = cfg.warmup_ratio
+    if "eval_strategy" in ta_params:
+        args_kwargs["eval_strategy"] = "epoch"
+    elif "evaluation_strategy" in ta_params:
+        args_kwargs["evaluation_strategy"] = "epoch"
+    args = TrainingArguments(**args_kwargs)
 
     trainer_kwargs = {
         "model": model,
@@ -375,4 +384,112 @@ def run_bert_oof(
     }
     save_metrics(cfg.output_name, metrics)
     print(f"[{cfg.output_name}] done in {elapsed/60:.1f} min — oof={oof_acc:.4f} val={val_acc:.4f} test={test_acc:.4f}")
+    return metrics
+
+
+def run_bert_fulltrain(
+    cfg: BertOOFConfig,
+    train_df: pd.DataFrame,
+    val_df: pd.DataFrame,
+    test_df: pd.DataFrame,
+    label_map: LabelMap,
+) -> Dict[str, object]:
+    """Fine-tune on full train with early-stop on val, then evaluate val/test.
+
+    No K-fold OOF and no probability ``.npy`` files. Saves
+    ``artifacts/metrics/{output_name}.json`` only.
+
+    Returns the metrics dict (includes JSON-serializable ``test_pred`` for the
+    notebook report cell).
+    """
+
+    _seed_everything(cfg.seed)
+    work_root = Path(cfg.work_dir).resolve()
+    work_root.mkdir(parents=True, exist_ok=True)
+
+    train_texts = train_df["text"].tolist()
+    train_labels = train_df["label"].map(label_map.label2id).to_numpy()
+
+    print(f"[{cfg.output_name}] training on full train and predicting val/test")
+    t0 = time.time()
+    val_labels = val_df["label"].map(label_map.label2id).to_numpy()
+    test_labels = test_df["label"].map(label_map.label2id).to_numpy()
+    full_dir = work_root / f"{cfg.output_name}_full"
+    if full_dir.exists():
+        shutil.rmtree(full_dir)
+    trainer, _tok, val_ds = _build_trainer(
+        cfg,
+        label_map,
+        train_texts,
+        train_labels,
+        val_df["text"].tolist(),
+        val_labels,
+        seed=cfg.seed,
+        output_dir=str(full_dir),
+    )
+    trainer.train()
+    val_probs = _predict_probs(trainer, val_ds)
+    val_pred = val_probs.argmax(axis=1)
+    val_acc = float(accuracy_score(val_labels, val_pred))
+    val_recall = float(recall_score(val_labels, val_pred, average="macro", zero_division=0))
+    val_f1 = float(f1_score(val_labels, val_pred, average="macro", zero_division=0))
+    val_f1_weighted = float(f1_score(val_labels, val_pred, average="weighted", zero_division=0))
+
+    from datasets import Dataset
+
+    test_ds_only = Dataset.from_pandas(
+        pd.DataFrame({"text": test_df["text"].tolist(), "label": test_labels.tolist()}),
+        preserve_index=False,
+    )
+    tokenizer = _tok
+
+    def _tok_fn(batch):
+        return tokenizer(
+            batch["text"],
+            padding="max_length",
+            truncation=True,
+            max_length=cfg.max_length,
+        )
+
+    test_ds_only = test_ds_only.map(_tok_fn, batched=True)
+    test_probs = _predict_probs(trainer, test_ds_only)
+    test_pred = test_probs.argmax(axis=1)
+    test_acc = float(accuracy_score(test_labels, test_pred))
+    test_recall = float(recall_score(test_labels, test_pred, average="macro", zero_division=0))
+    test_f1 = float(f1_score(test_labels, test_pred, average="macro", zero_division=0))
+    test_f1_weighted = float(f1_score(test_labels, test_pred, average="weighted", zero_division=0))
+
+    elapsed = time.time() - t0
+    metrics = {
+        "model_name": cfg.model_name,
+        "output_name": cfg.output_name,
+        "seed": cfg.seed,
+        "val_accuracy": val_acc,
+        "val_recall": val_recall,
+        "val_f1": val_f1,
+        "val_f1_weighted": val_f1_weighted,
+        "test_accuracy": test_acc,
+        "test_recall": test_recall,
+        "test_f1": test_f1,
+        "test_f1_weighted": test_f1_weighted,
+        "test_pred": [int(x) for x in test_pred.tolist()],
+        "num_train": int(len(train_texts)),
+        "num_val": int(len(val_df)),
+        "num_test": int(len(test_df)),
+        "elapsed_seconds": elapsed,
+        "tuning": {
+            "learning_rate": cfg.learning_rate,
+            "lr_scheduler_type": cfg.lr_scheduler_type,
+            "warmup_ratio": cfg.warmup_ratio,
+            "weight_decay": cfg.weight_decay,
+            "num_epochs": cfg.num_epochs,
+            "train_batch_size": cfg.train_batch_size,
+            "grad_accum_steps": cfg.grad_accum_steps,
+            "max_length": cfg.max_length,
+            "early_stopping_patience": cfg.early_stopping_patience,
+            "max_grad_norm": cfg.max_grad_norm,
+        },
+    }
+    save_metrics(cfg.output_name, metrics)
+    print(f"[{cfg.output_name}] done in {elapsed/60:.1f} min — val={val_acc:.4f} test={test_acc:.4f}")
     return metrics
