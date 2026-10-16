@@ -7,7 +7,8 @@
 \providecommand{\BIBentrySTDinterwordspacing}{\spaceskip=0pt\relax}
 \providecommand{\BIBentryALTinterwordstretchfactor}{4}
 \providecommand{\BIBentryALTinterwordspacing}{\spaceskip=\fontdimen2\font plus
-\BIBentryALTinterwordstretchfactor\fontdimen3\font minus \fontdimen4\font\relax}
+\BIBentryALTinterwordstretchfactor\fontdimen3\font minus
+  \fontdimen4\font\relax}
 \providecommand{\BIBforeignlanguage}[2]{{%
 \expandafter\ifx\csname l@#1\endcsname\relax
 \typeout{** WARNING: IEEEtran.bst: No hyphenation pattern has been}%
@@ -21,72 +22,130 @@
 \BIBdecl
 
 \bibitem{nguyen2018vsfc}
-K.~V. Nguyen, V.~D. Nguyen, P.~X.~V. Nguyen, T.~T.~T. Truong, and N.~L.-T. Nguyen, ``{UIT-VSFC}: {Vietnamese} students' feedback corpus for sentiment analysis,'' in \emph{2018 10th International Conference on Knowledge and Systems Engineering (KSE)}, 2018, pp. 19--24.
+K.~V. Nguyen, V.~D. Nguyen, P.~X.~V. Nguyen, T.~T.~T. Truong, and N.~L.-T.
+  Nguyen, ``{UIT-VSFC}: {Vietnamese} students' feedback corpus for sentiment
+  analysis,'' in \emph{2018 10th International Conference on Knowledge and
+  Systems Engineering (KSE)}, 2018, pp. 19--24.
 
 \bibitem{nguyen2018deeplearning}
-P.~X.~V. Nguyen, T.~T.~T. Hong, K.~V. Nguyen, and N.~L.-T. Nguyen, ``Deep learning versus traditional classifiers on {Vietnamese} students' feedback corpus,'' in \emph{Proceedings of the 5th {NAFOSTED} Conference on Information and Computer Science (NICS 2018)}, 2018, pp. 75--80.
+P.~X.~V. Nguyen, T.~T.~T. Hong, K.~V. Nguyen, and N.~L.-T. Nguyen, ``Deep
+  learning versus traditional classifiers on {Vietnamese} students' feedback
+  corpus,'' in \emph{Proceedings of the 5th {NAFOSTED} Conference on
+  Information and Computer Science (NICS 2018)}, 2018, pp. 75--80.
 
 \bibitem{nguyen2025phobert}
-D.~Nguyen, T.~Lau, H.~A. Nguyen, T.~Doan, H.~Nguyen, S.~Lu, and N.~Tran, ``A hybrid {PhoBERT-CNN-LSTM} model for sentiment analysis of {Vietnamese} student feedback,'' \emph{Asian Journal of Research in Computer Science}, vol.~18, no.~5, pp. 65--74, 2025.
+D.~Nguyen, T.~Lau, H.~A. Nguyen, T.~Doan, H.~Nguyen, S.~Lu, and N.~Tran, ``A
+  hybrid {PhoBERT-CNN-LSTM} model for sentiment analysis of {Vietnamese}
+  student feedback,'' \emph{Asian Journal of Research in Computer Science},
+  vol.~18, no.~5, pp. 65--74, 2025.
 
 \bibitem{hayatu2025emotion}
-I.~D. Hayatu, S.~Singh, M.~M. Muhammad, R.~Mishra, and M.~Mishra, ``Emotion detection in text data: A comparative study of machine learning algorithms,'' \emph{Brazilian Journal of Biometrics}, vol.~43, 2025.
+I.~D. Hayatu, S.~Singh, M.~M. Muhammad, R.~Mishra, and M.~Mishra, ``Emotion
+  detection in text data: A comparative study of machine learning algorithms,''
+  \emph{Brazilian Journal of Biometrics}, vol.~43, 2025.
 
 \bibitem{ho2020emotion}
-V.~A. Ho, D.~H.~C. Nguyen, D.~H. Nguyen, L.~T.~V. Pham, D.~V. Nguyen, K.~V. Nguyen, and N.~L.-T. Nguyen, ``Emotion recognition for {Vietnamese} social media text,'' in \emph{Proceedings of the 8th International Workshop on Vietnamese Language and Speech Processing (VLSP 2020)}, 2020.
+V.~A. Ho, D.~H.~C. Nguyen, D.~H. Nguyen, L.~T.~V. Pham, D.~V. Nguyen, K.~V.
+  Nguyen, and N.~L.-T. Nguyen, ``Emotion recognition for {Vietnamese} social
+  media text,'' in \emph{Proceedings of the 8th International Workshop on
+  Vietnamese Language and Speech Processing (VLSP 2020)}, 2020.
 
 \bibitem{duong2021review}
-H.~T. Duong and T.-A. Nguyen-Thi, ``A review: Preprocessing techniques and data augmentation for sentiment analysis,'' \emph{Computational Social Networks}, vol.~8, no.~1, pp. 1--16, 2021.
+H.~T. Duong and T.-A. Nguyen-Thi, ``A review: Preprocessing techniques and data
+  augmentation for sentiment analysis,'' \emph{Computational Social Networks},
+  vol.~8, no.~1, pp. 1--16, 2021.
 
 \bibitem{mai2025neuesc}
-P.~Q.~H. Mai, Q.~H. Nguyen, P.~G. Duong, H.~H. Nguyen, and N.~T. Long, ``{NEU-ESC}: A comprehensive {Vietnamese} dataset for educational sentiment analysis and topic classification toward multitask learning,'' \emph{arXiv preprint arXiv:2506.23524}, 2025.
+P.~Q.~H. Mai, Q.~H. Nguyen, P.~G. Duong, H.~H. Nguyen, and N.~T. Long,
+  ``{NEU-ESC}: A comprehensive {Vietnamese} dataset for educational sentiment
+  analysis and topic classification toward multitask learning,'' \emph{arXiv
+  preprint arXiv:2506.23524}, 2025.
 
 \bibitem{ding2024augmentation}
-B.~Ding, C.~Qin, R.~Zhao, T.~Luo, X.~Li, G.~Chen, W.~Xia, J.~Hu, A.~T. Luu, and S.~Joty, ``Data augmentation using large language models: Data perspectives, learning paradigms and challenges,'' in \emph{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (ACL 2024)}, 2024.
+B.~Ding, C.~Qin, R.~Zhao, T.~Luo, X.~Li, G.~Chen, W.~Xia, J.~Hu, A.~T. Luu, and
+  S.~Joty, ``Data augmentation using large language models: Data perspectives,
+  learning paradigms and challenges,'' in \emph{Proceedings of the 62nd Annual
+  Meeting of the Association for Computational Linguistics (ACL 2024)}, 2024.
 
 \bibitem{nguyen2020exploiting}
-K.~P.-Q. Nguyen and K.~V. Nguyen, ``Exploiting {Vietnamese} social media characteristics for textual emotion recognition in {Vietnamese},'' \emph{arXiv preprint arXiv:2009.11005}, 2020.
+K.~P.-Q. Nguyen and K.~V. Nguyen, ``Exploiting {Vietnamese} social media
+  characteristics for textual emotion recognition in {Vietnamese},''
+  \emph{arXiv preprint arXiv:2009.11005}, 2020.
 
 \bibitem{nguyen2020phobert}
-D.~Q. Nguyen and A.~T. Nguyen, ``{PhoBERT}: Pre-trained language models for {Vietnamese},'' in \emph{Findings of the Association for Computational Linguistics: EMNLP 2020}, 2020, pp. 1037--1042.
+D.~Q. Nguyen and A.~T. Nguyen, ``{PhoBERT}: Pre-trained language models for
+  {Vietnamese},'' in \emph{Findings of the Association for Computational
+  Linguistics: EMNLP 2020}, 2020, pp. 1037--1042.
 
 \bibitem{do2024vlue}
-P.~N.-T. Do, S.~Q. Tran, P.~G. Hoang, K.~V. Nguyen, and N.~L.-T. Nguyen, ``{VLUE}: A new benchmark and multi-task knowledge transfer learning for {Vietnamese} natural language understanding,'' \emph{arXiv preprint arXiv:2403.15882}, 2024.
+P.~N.-T. Do, S.~Q. Tran, P.~G. Hoang, K.~V. Nguyen, and N.~L.-T. Nguyen,
+  ``{VLUE}: A new benchmark and multi-task knowledge transfer learning for
+  {Vietnamese} natural language understanding,'' \emph{arXiv preprint
+  arXiv:2403.15882}, 2024.
 
 \bibitem{nguyen2024visobert}
-Q.-N. Nguyen, T.~C. Phan, D.-V. Nguyen, and K.~V. Nguyen, ``{ViSoBERT}: A pre-trained language model for {Vietnamese} social media text processing,'' \emph{arXiv preprint arXiv:2310.11166}, 2023.
+Q.-N. Nguyen, T.~C. Phan, D.-V. Nguyen, and K.~V. Nguyen, ``{ViSoBERT}: A
+  pre-trained language model for {Vietnamese} social media text processing,''
+  \emph{arXiv preprint arXiv:2310.11166}, 2023.
 
 \bibitem{huynh2020ensemble}
-H.~D. Huynh, H.~T.-T. Do, K.~V. Nguyen, and N.~L.-T. Nguyen, ``A simple and efficient ensemble classifier combining multiple neural network models on social media datasets in {Vietnamese},'' in \emph{Proceedings of the 34th Pacific Asia Conference on Language, Information and Computation (PACLIC 2020)}, 2020, pp. 420--429.
+H.~D. Huynh, H.~T.-T. Do, K.~V. Nguyen, and N.~L.-T. Nguyen, ``A simple and
+  efficient ensemble classifier combining multiple neural network models on
+  social media datasets in {Vietnamese},'' in \emph{Proceedings of the 34th
+  Pacific Asia Conference on Language, Information and Computation (PACLIC
+  2020)}, 2020, pp. 420--429.
 
 \bibitem{ubani2023zeroshotdataaug}
-S.~Ubani, S.~O. Polat, and R.~D. Nielsen, ``{ZeroShotDataAug}: Generating and augmenting training data with {ChatGPT},'' in \emph{Proceedings of the 18th Workshop on Innovative Use of NLP for Building Educational Applications (BEA 2023)}, 2023, pp. 349--362.
+S.~Ubani, S.~O. Polat, and R.~D. Nielsen, ``{ZeroShotDataAug}: Generating and
+  augmenting training data with {ChatGPT},'' in \emph{Proceedings of the 18th
+  Workshop on Innovative Use of NLP for Building Educational Applications (BEA
+  2023)}, 2023, pp. 349--362.
 
 \bibitem{whitehouse2023llmaug}
-C.~Whitehouse, M.~Choudhury, and A.~F. Aji, ``{LLM}-powered data augmentation for enhanced cross-lingual performance,'' in \emph{Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP 2023)}, 2023, pp. 671--686.
+C.~Whitehouse, M.~Choudhury, and A.~F. Aji, ``{LLM}-powered data augmentation
+  for enhanced cross-lingual performance,'' in \emph{Proceedings of the 2023
+  Conference on Empirical Methods in Natural Language Processing (EMNLP 2023)},
+  2023, pp. 671--686.
 
 \bibitem{uveges2025synthetic}
-I.~\"{U}veges and O.~Ring, ``Evaluating the impact of synthetic data on emotion classification: A linguistic and structural analysis,'' \emph{Information}, vol.~16, no.~4, p. 330, 2025.
+I.~\"{U}veges and O.~Ring, ``Evaluating the impact of synthetic data on emotion
+  classification: A linguistic and structural analysis,'' \emph{Information},
+  vol.~16, no.~4, p. 330, 2025.
 
 \bibitem{thin2024ensemble}
-D.~V. Thin, D.~N. Hao, and N.~L.-T. Nguyen, ``A study of {Vietnamese} sentiment classification with ensemble pre-trained language models,'' \emph{Vietnam Journal of Computer Science}, vol.~11, no.~01, pp. 137--165, 2024.
+D.~V. Thin, D.~N. Hao, and N.~L.-T. Nguyen, ``A study of {Vietnamese} sentiment
+  classification with ensemble pre-trained language models,'' \emph{Vietnam
+  Journal of Computer Science}, vol.~11, no.~01, pp. 137--165, 2024.
 
 \bibitem{niimi2025ensemble}
-J.~Niimi, ``Improving {LLM} inference with multi-level ensemble learning: Robust sentiment analysis by unifying multiple inferences,'' \emph{arXiv preprint}, 2025.
+J.~Niimi, ``Improving {LLM} inference with multi-level ensemble learning:
+  Robust sentiment analysis by unifying multiple inferences,'' \emph{arXiv
+  preprint}, 2025.
 
 \bibitem{thin2024prompt}
-D.~V. Thin, D.~N. Hao, and N.~L.-T. Nguyen, ``Prompt engineering with large language models for {Vietnamese} sentiment classification,'' in \emph{Proceedings of the 38th Pacific Asia Conference on Language, Information and Computation (PACLIC 38)}, 2024, pp. 162--171.
+D.~V. Thin, D.~N. Hao, and N.~L.-T. Nguyen, ``Prompt engineering with large
+  language models for {Vietnamese} sentiment classification,'' in
+  \emph{Proceedings of the 38th Pacific Asia Conference on Language,
+  Information and Computation (PACLIC 38)}, 2024, pp. 162--171.
 
 \bibitem{zhang2025commonsense}
-K.~Zhang and Y.~Han, ``Harnessing commonsense: {LLM}-driven knowledge integration for fine-grained sentiment analysis,'' \emph{arXiv preprint}, 2025.
+K.~Zhang and Y.~Han, ``Harnessing commonsense: {LLM}-driven knowledge
+  integration for fine-grained sentiment analysis,'' \emph{arXiv preprint},
+  2025.
 
 \bibitem{li2025temperature}
-L.~Li, L.~Sleem, N.~Gentile, G.~Nichil, and R.~State, ``Exploring the impact of temperature on large language models: Hot or cold?'' \emph{arXiv preprint arXiv:2506.07295}, 2025.
+L.~Li, L.~Sleem, N.~Gentile, G.~Nichil, and R.~State, ``Exploring the impact of
+  temperature on large language models: Hot or cold?'' \emph{arXiv preprint
+  arXiv:2506.07295}, 2025.
 
 \bibitem{bollapragada2018lbfgs}
-R.~Bollapragada, D.~Mudigere, J.~Nocedal, H.-J.~M. Shi, and P.~T.~P. Tang, ``A progressive batching {L-BFGS} method for machine learning,'' \emph{arXiv preprint arXiv:1802.05374}, 2018.
+R.~Bollapragada, D.~Mudigere, J.~Nocedal, H.-J.~M. Shi, and P.~T.~P. Tang, ``A
+  progressive batching {L-BFGS} method for machine learning,'' \emph{arXiv
+  preprint arXiv:1802.05374}, 2018.
 
 \bibitem{sasso2022transfer}
-R.~Sasso, M.~Sabatelli, and M.~A. Wiering, ``Multi-source transfer learning for deep model-based reinforcement learning,'' \emph{arXiv preprint arXiv:2205.14410}, 2022.
+R.~Sasso, M.~Sabatelli, and M.~A. Wiering, ``Multi-source transfer learning for
+  deep model-based reinforcement learning,'' \emph{arXiv preprint
+  arXiv:2205.14410}, 2022.
 
 \end{thebibliography}
