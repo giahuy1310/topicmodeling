@@ -83,8 +83,8 @@ K.~Zhang and Y.~Han, ``Harnessing commonsense: {LLM}-driven knowledge integratio
 \bibitem{li2025temperature}
 L.~Li, L.~Sleem, N.~Gentile, G.~Nichil, and R.~State, ``Exploring the impact of temperature on large language models: Hot or cold?'' \emph{arXiv preprint arXiv:2506.07295}, 2025.
 
-\bibitem{bollapragada2018lbfgs}
-R.~Bollapragada, D.~Mudigere, J.~Nocedal, H.-J.~M. Shi, and P.~T.~P. Tang, ``A progressive batching {L-BFGS} method for machine learning,'' \emph{arXiv preprint arXiv:1802.05374}, 2018.
+\bibitem{lin2023linear}
+Y.-C. Lin, S.-A. Chen, J.-J. Liu, and C.-J. Lin, ``Linear classifier: An often-forgotten baseline for text classification,'' in \emph{Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 2: Short Papers)}, 2023, pp. 1876--1888.
 
 \bibitem{sasso2022transfer}
 R.~Sasso, M.~Sabatelli, and M.~A. Wiering, ``Multi-source transfer learning for deep model-based reinforcement learning,'' \emph{arXiv preprint arXiv:2205.14410}, 2022.

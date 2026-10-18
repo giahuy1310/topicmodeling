@@ -365,7 +365,7 @@ each producing probability vectors across the seven emotion classes:
   \item \textbf{CafeBERT} \cite{do2024vlue}: a Vietnamese BERT variant from the VLUE
         benchmark; best single-model accuracy on VSMEC.
   \item \textbf{ViBERT}: a Vietnamese BERT model further pre-trained on Vietnamese text.
-  \item \textbf{Logistic Regression}: TF-IDF features, L2 regularization \cite{bollapragada2018lbfgs}.
+  \item \textbf{Logistic Regression}: TF-IDF features \cite{lin2023linear}.
   \item \textbf{LinearSVC}: TF-IDF features, wrapped in a probability calibration layer
         to produce class probability estimates.
 \end{itemize}
@@ -399,6 +399,47 @@ Fear, Anger, Disgust, Surprise, and Other. We follow the standard 8:1:1 split pr
 yielding approximately 5,548 training, 686 validation, and 692 test sentences after
 preprocessing. The training set is augmented to 1,500 examples per class for the minority
 classes before preprocessing.
+
+\subsection{Reproduction Settings}
+
+Table~\ref{tab:repro_params} lists the UIT-VSMEC hyperparameters. Transformer training uses
+seed 42 for the stratified folds and fine-tuning. Weighted soft voting uses validation-accuracy weights.
+LogReg stacking selects $C\in\{0.25,1.0,4.0\}$ by validation macro F1 (L-BFGS,
+$\mathrm{max\_iter}=1000$, seed 123).
+
+\begin{table}[H]
+\caption{UIT-VSMEC hyperparameters}
+\label{tab:repro_params}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.9}
+\begin{tabular}{@{}lp{0.62\columnwidth}@{}}
+\toprule
+Setting & Value \\
+\midrule
+Transformer ckpts &
+  \texttt{vinai/phobert-base-v2}, \texttt{uitnlp/CafeBERT},
+  \texttt{FPTAI/vibert-base-cased}; standalone
+  \texttt{uitnlp/visobert} (\texttt{use\_fast=False}) \\
+Transformer train &
+  20 epochs, AdamW $2\times10^{-5}$, cosine, warmup 0.1, wd 0.01, clip 1.0;
+  batch 128/256, accum.\ 2, max len 256; patience 3 on macro F1;
+  3-fold OOF then full-train refit; seed 42 \\
+TF-IDF / linear &
+  1--2 grams, $\mathrm{min\_df}=2$, $\mathrm{sublinear\_tf}$;
+  LogReg and LinearSVC $C=1.0$, seed 123, 3 folds;
+  LinearSVC + Platt scaling (inner $cv=3$) \\
+QLoRA Gemma &
+  seed 42; 4-bit NF4, double quant., bf16;
+  $r=16$, $\alpha=32$, dropout 0.05, no bias;
+  targets $q$/$k$/$v$/$o$/gate/up/down proj.;
+  2 epochs, lr $1\times10^{-4}$, cosine, 10\% warmup, wd 0;
+  batch 16, accum.\ 2, eval 16, seq 800, completion-only loss;
+  greedy, $\mathrm{max\_new\_tokens}=12$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Baselines and Evaluation}
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.10.16)  16 OCT 2026 20:10
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.10.16)  17 OCT 2026 23:09
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -816,17 +816,22 @@ Underfull \hbox (badness 3884) in paragraph at lines 319--319
 LaTeX Font Info:    Trying to load font information for T5+pcr on input line 344.
 (/usr/local/texlive/2026/texmf-dist/tex/latex/vntex/t5pcr.fd
 File: t5ucr.fd 2005/08/24 Fontinst v1.929 font definitions for T5/pcr.
-) [3] [4]
-Underfull \hbox (badness 1515) in paragraph at lines 562--569
+) [3]
+Underfull \hbox (badness 10000) in paragraph at lines 422--425
+\T5/pcr/m/n/7 FPTAI/vibert-base-cased\T5/ptm/m/n/7 ; stan-dalone
+ []
+
+[4] [5]
+Underfull \hbox (badness 1515) in paragraph at lines 603--610
 \T5/ptm/m/n/10 proved CafeBERT's per-for-mance across all three un-der-
  []
 
 
-Underfull \hbox (badness 1371) in paragraph at lines 562--569
+Underfull \hbox (badness 1371) in paragraph at lines 603--610
 \T5/ptm/m/n/10 new sen-tences con-di-tioned on 10 in-context examples---
  []
 
-[5] (./conference_paper.bbl)
+(./conference_paper.bbl [6])
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -838,25 +843,27 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[6] (./conference_paper.aux)
+[7
+
+] (./conference_paper.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 16141 strings out of 467525
- 324274 string characters out of 5418981
- 734640 words of memory out of 5000000
- 44768 multiletter control sequences out of 15000+600000
- 762679 words of font info for 164 fonts, out of 8000000 for 9000
+ 16143 strings out of 467525
+ 324296 string characters out of 5418981
+ 734662 words of memory out of 5000000
+ 44770 multiletter control sequences out of 15000+600000
+ 763878 words of font info for 165 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,13n,94p,1163b,843s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/ucrr8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmb8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmbi8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmr8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmri8v.pfb>
-Output written on conference_paper.pdf (6 pages, 160527 bytes).
+ 84i,15n,94p,1163b,843s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/ucrr8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmb8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmbi8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmr8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmri8v.pfb>
+Output written on conference_paper.pdf (7 pages, 214507 bytes).
 PDF statistics:
- 77 PDF objects out of 1000 (max. 8388607)
- 48 compressed objects within 1 object stream
+ 102 PDF objects out of 1000 (max. 8388607)
+ 64 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

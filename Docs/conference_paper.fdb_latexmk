@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex conference_paper"] 1792177859.37619 "conference_paper.aux" "conference_paper.bbl" "conference_paper" 1792177860.5641 0
-  "./references.bib" 1783931945.98416 8798 6d41dfeae6adc0e60d7d6b3354030dc7 ""
+["bibtex conference_paper"] 1792274981.75023 "conference_paper.aux" "conference_paper.bbl" "conference_paper" 1792274983.2413 0
+  "./references.bib" 1792273684.90361 8869 af5112d116b8b6b415978b2e8301af5c ""
   "/usr/local/texlive/2026/texmf-dist/bibtex/bst/ieeetran/IEEEtran.bst" 1440712899 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "conference_paper.aux" 1792177860.2515 5976 d9b2af709e1087f76c79cf400d104d26 "pdflatex"
+  "conference_paper.aux" 1792274982.83651 6262 c410db11fa12f74e9b983b3e1a6d5459 "pdflatex"
   (generated)
   "conference_paper.bbl"
   "conference_paper.blg"
   (rewritten before read)
-["pdflatex"] 1792177859.49429 "/Users/giahuy/Documents/GitHub/topicmodeling/Docs/conference_paper.tex" "conference_paper.pdf" "conference_paper" 1792177860.56425 0
-  "/Users/giahuy/Documents/GitHub/topicmodeling/Docs/conference_paper.tex" 1792177412.24501 35187 7e32ffa3485a5b7def409790e31add98 ""
+["pdflatex"] 1792274981.92564 "/Users/giahuy/Documents/GitHub/topicmodeling/Docs/conference_paper.tex" "conference_paper.pdf" "conference_paper" 1792274983.2415 0
+  "/Users/giahuy/Documents/GitHub/topicmodeling/Docs/conference_paper.tex" 1792274980.06832 36671 8046b3f73cf3935d7ad7a7204beba74c ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/vntex/t5.enc" 1136849721 7824 21ade6c3c7fd67cb4ace8dbc91c53118 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm" 1136768653 2172 fd0c924230362ff848a33632ed45dc23 ""
@@ -40,8 +40,12 @@
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/vntex/urwvn/utmrc8v.tfm" 1136768653 13268 4823fc83b0d556e638bb7164ef28561a ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/vntex/urwvn/utmri8v.tfm" 1136768653 9008 70b98210bab02ff42c73a48e822f618f ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb" 1248133631 36299 5f9df58c2139e7edcf37c8fca4bd384d ""
+  "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb" 1248133631 36281 c355509802a035cadc5f15869451dcee ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb" 1248133631 35752 024fb6c41858982481f6968b5fc26508 ""
+  "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb" 1248133631 31809 8670ca339bf94e56da1fc21c80635e2a ""
+  "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb" 1248133631 32762 224316ccc9ad3ca0423a14971cfa7fc1 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1248133631 32569 5e5ddc8df908dea60932f3c484a54c0d ""
+  "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb" 1248133631 32915 7bf7720c61a5b3a7ff25b0964421c9b6 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb" 1248133631 32716 08e384dc442464e7285e891af9f45947 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb" 1248133631 32626 4f5c1b83753b1dd3a97d1b399a005b4b ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/ucrr8v.pfb" 1136849748 76747 7661890fb8ab67318f6d2b38f38e368f ""
@@ -158,9 +162,9 @@
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1792177338 3636772 840bd631be414a135249c78ffdd7f35e ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
   "IEEEtran.cls" 1783911010.10883 288304 b67b6fc6c2abb39f9b461923f5199343 ""
-  "conference_paper.aux" 1792177860.2515 5976 d9b2af709e1087f76c79cf400d104d26 "pdflatex"
-  "conference_paper.bbl" 1792177859.49125 6781 6637cf034ed9b07dc8aad378f1bd7096 "bibtex conference_paper"
-  "conference_paper.tex" 1792177412.24501 35187 7e32ffa3485a5b7def409790e31add98 ""
+  "conference_paper.aux" 1792274982.83651 6262 c410db11fa12f74e9b983b3e1a6d5459 "pdflatex"
+  "conference_paper.bbl" 1792274981.92203 6858 bc724dade2a170be85fe3dbd2a268793 "bibtex conference_paper"
+  "conference_paper.tex" 1792274980.06832 36671 8046b3f73cf3935d7ad7a7204beba74c ""
   (generated)
   "conference_paper.aux"
   "conference_paper.log"
