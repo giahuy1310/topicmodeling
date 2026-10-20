@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex conference_paper"] 1792274981.75023 "conference_paper.aux" "conference_paper.bbl" "conference_paper" 1792274983.2413 0
-  "./references.bib" 1792273684.90361 8869 af5112d116b8b6b415978b2e8301af5c ""
+["bibtex conference_paper"] 1792365818.33552 "conference_paper.aux" "conference_paper.bbl" "conference_paper" 1792365819.52561 0
+  "./references.bib" 1792365815.65463 9856 07fd99d2d80876fce359b27e3d5b8d77 ""
   "/usr/local/texlive/2026/texmf-dist/bibtex/bst/ieeetran/IEEEtran.bst" 1440712899 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "conference_paper.aux" 1792274982.83651 6262 c410db11fa12f74e9b983b3e1a6d5459 "pdflatex"
+  "conference_paper.aux" 1792365819.18771 6358 cf68534ebf09d53f4eb55df379c8a827 "pdflatex"
   (generated)
   "conference_paper.bbl"
   "conference_paper.blg"
   (rewritten before read)
-["pdflatex"] 1792274981.92564 "/Users/giahuy/Documents/GitHub/topicmodeling/Docs/conference_paper.tex" "conference_paper.pdf" "conference_paper" 1792274983.2415 0
-  "/Users/giahuy/Documents/GitHub/topicmodeling/Docs/conference_paper.tex" 1792274980.06832 36671 8046b3f73cf3935d7ad7a7204beba74c ""
+["pdflatex"] 1792365818.46498 "/Users/giahuy/Documents/GitHub/topicmodeling/Docs/conference_paper.tex" "conference_paper.pdf" "conference_paper" 1792365819.52579 0
+  "/Users/giahuy/Documents/GitHub/topicmodeling/Docs/conference_paper.tex" 1792365537.07522 35226 ad1b48ebfaaab9928a2bde7f858cac45 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/vntex/t5.enc" 1136849721 7824 21ade6c3c7fd67cb4ace8dbc91c53118 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm" 1136768653 2172 fd0c924230362ff848a33632ed45dc23 ""
@@ -162,9 +162,9 @@
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1792177338 3636772 840bd631be414a135249c78ffdd7f35e ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
   "IEEEtran.cls" 1783911010.10883 288304 b67b6fc6c2abb39f9b461923f5199343 ""
-  "conference_paper.aux" 1792274982.83651 6262 c410db11fa12f74e9b983b3e1a6d5459 "pdflatex"
-  "conference_paper.bbl" 1792274981.92203 6858 bc724dade2a170be85fe3dbd2a268793 "bibtex conference_paper"
-  "conference_paper.tex" 1792274980.06832 36671 8046b3f73cf3935d7ad7a7204beba74c ""
+  "conference_paper.aux" 1792365819.18771 6358 cf68534ebf09d53f4eb55df379c8a827 "pdflatex"
+  "conference_paper.bbl" 1792365818.46176 7327 a8eb5ac22c94c8adf7f110da25f23e57 "bibtex conference_paper"
+  "conference_paper.tex" 1792365537.07522 35226 ad1b48ebfaaab9928a2bde7f858cac45 ""
   (generated)
   "conference_paper.aux"
   "conference_paper.log"

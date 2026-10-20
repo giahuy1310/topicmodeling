@@ -30,6 +30,9 @@ PERSISTENT_ARTIFACTS_DIR = Path(
 ARTIFACTS_DIR = Path(
     os.environ.get("TM_ENSEMBLE_ARTIFACTS_DIR", str(PERSISTENT_ARTIFACTS_DIR))
 )
+# Session root captured at import. Seed activation rebinds ARTIFACTS_DIR, but
+# push/pull always copy this directory so one seed folder cannot flatten onto Drive.
+_SESSION_ARTIFACTS_DIR = ARTIFACTS_DIR
 PROBS_DIR = ARTIFACTS_DIR / "probs"
 META_JSONL_DIR = ARTIFACTS_DIR / "meta_jsonl"
 METRICS_DIR = ARTIFACTS_DIR / "metrics"
@@ -60,6 +63,40 @@ class LabelMap:
 def _ensure_dirs() -> None:
     for d in (ARTIFACTS_DIR, PROBS_DIR, META_JSONL_DIR, METRICS_DIR, LORA_DIR):
         d.mkdir(parents=True, exist_ok=True)
+
+
+def _rebind_artifact_dirs(root: Path) -> None:
+    global ARTIFACTS_DIR, PROBS_DIR, META_JSONL_DIR, METRICS_DIR, LORA_DIR
+    ARTIFACTS_DIR = root
+    PROBS_DIR = root / "probs"
+    META_JSONL_DIR = root / "meta_jsonl"
+    METRICS_DIR = root / "metrics"
+    LORA_DIR = root / "lora_adapter"
+
+
+def activate_seed_artifacts(seed: int, *, root: str | os.PathLike | None = None) -> Path:
+    """Rebind artifact globals to ``{session}/seeds/{seed}/`` and create them.
+
+    ``root`` overrides the session root for tests. The default is
+    ``_SESSION_ARTIFACTS_DIR``, the artifact root captured at import.
+    Returns the seed directory.
+    """
+
+    base = Path(root) if root is not None else _SESSION_ARTIFACTS_DIR
+    seed_dir = base / "seeds" / str(int(seed))
+    _rebind_artifact_dirs(seed_dir)
+    _ensure_dirs()
+    return seed_dir
+
+
+def reset_artifacts_root() -> Path:
+    """Restore artifact globals to the session root captured at import.
+
+    Returns that session root. Does not delete seed directories.
+    """
+
+    _rebind_artifact_dirs(_SESSION_ARTIFACTS_DIR)
+    return _SESSION_ARTIFACTS_DIR
 
 
 def _pick_column(df: pd.DataFrame, candidates: Tuple[str, ...]) -> str:
@@ -184,22 +221,29 @@ def _copy_tree(src: Path, dst: Path, *, newer_only: bool, verbose: bool) -> int:
     return n
 
 
+def _same_path(a: Path, b: Path) -> bool:
+    try:
+        return a.resolve() == b.resolve()
+    except OSError:
+        return str(a) == str(b)
+
+
 def push_artifacts_to_persistent(verbose: bool = True) -> Optional[Path]:
-    """Copy current ``ARTIFACTS_DIR`` → ``PERSISTENT_ARTIFACTS_DIR``.
+    """Copy the session artifact root → ``PERSISTENT_ARTIFACTS_DIR``.
+
+    Always copies ``_SESSION_ARTIFACTS_DIR``, including while a seed directory
+    is active, so one seed folder is not flattened onto the Drive artifact root.
+    When no seed is active this matches copying ``ARTIFACTS_DIR``. No-op if the
+    session root and the persistent root resolve to the same directory.
 
     Run this at the end of a Colab notebook so results on local scratch
-    (``/content/...``) are persisted to Drive. No-op if the two paths resolve
-    to the same directory.
+    (``/content/...``) are persisted to Drive.
     """
 
-    src, dst = ARTIFACTS_DIR, PERSISTENT_ARTIFACTS_DIR
-    try:
-        same = src.resolve() == dst.resolve()
-    except OSError:
-        same = str(src) == str(dst)
-    if same:
+    src, dst = _SESSION_ARTIFACTS_DIR, PERSISTENT_ARTIFACTS_DIR
+    if _same_path(src, dst):
         if verbose:
-            print(f"[utils_io] push skipped: ARTIFACTS_DIR == PERSISTENT_ARTIFACTS_DIR ({src})")
+            print(f"[utils_io] push skipped: session artifacts == PERSISTENT_ARTIFACTS_DIR ({src})")
         return None
     n = _copy_tree(src, dst, newer_only=False, verbose=verbose)
     if verbose:
@@ -208,21 +252,19 @@ def push_artifacts_to_persistent(verbose: bool = True) -> Optional[Path]:
 
 
 def pull_artifacts_from_persistent(verbose: bool = True) -> Optional[Path]:
-    """Copy ``PERSISTENT_ARTIFACTS_DIR`` → ``ARTIFACTS_DIR`` (newer files only).
+    """Copy ``PERSISTENT_ARTIFACTS_DIR`` → session artifact root (newer files only).
 
+    Always writes to ``_SESSION_ARTIFACTS_DIR``, including while a seed directory
+    is active. When no seed is active this matches copying into ``ARTIFACTS_DIR``.
     Called by ``colab_setup.setup_colab`` at session start so a fresh Colab
     VM can see artifacts produced by earlier runs (e.g. notebook 05 reading
     OOF probs written by 01..04 last week).
     """
 
-    src, dst = PERSISTENT_ARTIFACTS_DIR, ARTIFACTS_DIR
-    try:
-        same = src.resolve() == dst.resolve()
-    except OSError:
-        same = str(src) == str(dst)
-    if same:
+    src, dst = PERSISTENT_ARTIFACTS_DIR, _SESSION_ARTIFACTS_DIR
+    if _same_path(src, dst):
         if verbose:
-            print(f"[utils_io] pull skipped: ARTIFACTS_DIR == PERSISTENT_ARTIFACTS_DIR ({src})")
+            print(f"[utils_io] pull skipped: session artifacts == PERSISTENT_ARTIFACTS_DIR ({dst})")
         return None
     n = _copy_tree(src, dst, newer_only=True, verbose=verbose)
     if verbose:

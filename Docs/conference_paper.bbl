@@ -29,9 +29,6 @@ P.~X.~V. Nguyen, T.~T.~T. Hong, K.~V. Nguyen, and N.~L.-T. Nguyen, ``Deep learni
 \bibitem{nguyen2025phobert}
 D.~Nguyen, T.~Lau, H.~A. Nguyen, T.~Doan, H.~Nguyen, S.~Lu, and N.~Tran, ``A hybrid {PhoBERT-CNN-LSTM} model for sentiment analysis of {Vietnamese} student feedback,'' \emph{Asian Journal of Research in Computer Science}, vol.~18, no.~5, pp. 65--74, 2025.
 
-\bibitem{hayatu2025emotion}
-I.~D. Hayatu, S.~Singh, M.~M. Muhammad, R.~Mishra, and M.~Mishra, ``Emotion detection in text data: A comparative study of machine learning algorithms,'' \emph{Brazilian Journal of Biometrics}, vol.~43, 2025.
-
 \bibitem{ho2020emotion}
 V.~A. Ho, D.~H.~C. Nguyen, D.~H. Nguyen, L.~T.~V. Pham, D.~V. Nguyen, K.~V. Nguyen, and N.~L.-T. Nguyen, ``Emotion recognition for {Vietnamese} social media text,'' in \emph{Proceedings of the 8th International Workshop on Vietnamese Language and Speech Processing (VLSP 2020)}, 2020.
 
@@ -41,8 +38,13 @@ H.~T. Duong and T.-A. Nguyen-Thi, ``A review: Preprocessing techniques and data 
 \bibitem{mai2025neuesc}
 P.~Q.~H. Mai, Q.~H. Nguyen, P.~G. Duong, H.~H. Nguyen, and N.~T. Long, ``{NEU-ESC}: A comprehensive {Vietnamese} dataset for educational sentiment analysis and topic classification toward multitask learning,'' \emph{arXiv preprint arXiv:2506.23524}, 2025.
 
-\bibitem{ding2024augmentation}
-B.~Ding, C.~Qin, R.~Zhao, T.~Luo, X.~Li, G.~Chen, W.~Xia, J.~Hu, A.~T. Luu, and S.~Joty, ``Data augmentation using large language models: Data perspectives, learning paradigms and challenges,'' in \emph{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (ACL 2024)}, 2024.
+\bibitem{comanici2025gemini}
+G.~Comanici, E.~Bieber, M.~Schaekermann, I.~Pasupat, N.~Sachdeva, I.~Dhillon, M.~Blistein, O.~Ram, D.~Zhang, E.~Rosen \emph{et~al.}, ``Gemini 2.5: Pushing the frontier with advanced reasoning, multimodality, long context, and next generation agentic capabilities,'' \emph{arXiv preprint arXiv:2507.06261}, 2025.
+
+\bibitem{gemma_2024}
+\BIBentryALTinterwordspacing
+G.~Team, ``Gemma,'' 2024. [Online]. Available: \url{https://www.kaggle.com/m/3301}
+\BIBentrySTDinterwordspacing
 
 \bibitem{nguyen2020exploiting}
 K.~P.-Q. Nguyen and K.~V. Nguyen, ``Exploiting {Vietnamese} social media characteristics for textual emotion recognition in {Vietnamese},'' \emph{arXiv preprint arXiv:2009.11005}, 2020.
@@ -58,6 +60,9 @@ Q.-N. Nguyen, T.~C. Phan, D.-V. Nguyen, and K.~V. Nguyen, ``{ViSoBERT}: A pre-tr
 
 \bibitem{huynh2020ensemble}
 H.~D. Huynh, H.~T.-T. Do, K.~V. Nguyen, and N.~L.-T. Nguyen, ``A simple and efficient ensemble classifier combining multiple neural network models on social media datasets in {Vietnamese},'' in \emph{Proceedings of the 34th Pacific Asia Conference on Language, Information and Computation (PACLIC 2020)}, 2020, pp. 420--429.
+
+\bibitem{ding2024augmentation}
+B.~Ding, C.~Qin, R.~Zhao, T.~Luo, X.~Li, G.~Chen, W.~Xia, J.~Hu, A.~T. Luu, and S.~Joty, ``Data augmentation using large language models: Data perspectives, learning paradigms and challenges,'' in \emph{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (ACL 2024)}, 2024.
 
 \bibitem{ubani2023zeroshotdataaug}
 S.~Ubani, S.~O. Polat, and R.~D. Nielsen, ``{ZeroShotDataAug}: Generating and augmenting training data with {ChatGPT},'' in \emph{Proceedings of the 18th Workshop on Innovative Use of NLP for Building Educational Applications (BEA 2023)}, 2023, pp. 349--362.
@@ -82,6 +87,9 @@ K.~Zhang and Y.~Han, ``Harnessing commonsense: {LLM}-driven knowledge integratio
 
 \bibitem{li2025temperature}
 L.~Li, L.~Sleem, N.~Gentile, G.~Nichil, and R.~State, ``Exploring the impact of temperature on large language models: Hot or cold?'' \emph{arXiv preprint arXiv:2506.07295}, 2025.
+
+\bibitem{the2020improving}
+V.~B. The, O.~T. Thi, and P.~Le-Hong, ``Improving sequence tagging for vietnamese text using transformer-based neural models,'' \emph{arXiv preprint arXiv:2006.15994}, 2020.
 
 \bibitem{lin2023linear}
 Y.-C. Lin, S.-A. Chen, J.-J. Liu, and C.-J. Lin, ``Linear classifier: An often-forgotten baseline for text classification,'' in \emph{Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 2: Short Papers)}, 2023, pp. 1876--1888.

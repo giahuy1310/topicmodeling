@@ -11,46 +11,48 @@ Database file #1: references.bib
 -- IEEEtran.bst version 1.14 (2015/08/26) by Michael Shell.
 -- http://www.michaelshell.org/tex/ieeetran/bibtex/
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
+Warning--empty journal in gemma_2024
 
 Done.
-You've used 23 entries,
+You've used 25 entries,
             4087 wiz_defined-function locations,
-            935 strings with 12759 characters,
-and the built_in function-call counts, 16238 in all, are:
-= -- 1235
-> -- 469
-< -- 104
-+ -- 243
-- -- 91
-* -- 771
-:= -- 2404
-add.period$ -- 46
-call.type$ -- 23
-change.case$ -- 23
+            943 strings with 13122 characters,
+and the built_in function-call counts, 17170 in all, are:
+= -- 1297
+> -- 509
+< -- 103
++ -- 263
+- -- 101
+* -- 813
+:= -- 2563
+add.period$ -- 50
+call.type$ -- 25
+change.case$ -- 25
 chr.to.int$ -- 249
-cite$ -- 23
-duplicate$ -- 1203
-empty$ -- 1386
-format.name$ -- 113
-if$ -- 3789
+cite$ -- 26
+duplicate$ -- 1281
+empty$ -- 1467
+format.name$ -- 124
+if$ -- 3995
 int.to.chr$ -- 0
-int.to.str$ -- 23
-missing$ -- 224
-newline$ -- 92
-num.names$ -- 23
-pop$ -- 577
+int.to.str$ -- 25
+missing$ -- 241
+newline$ -- 100
+num.names$ -- 25
+pop$ -- 629
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 2
-skip$ -- 1251
+skip$ -- 1316
 stack$ -- 0
-substring$ -- 609
-swap$ -- 895
-text.length$ -- 21
+substring$ -- 611
+swap$ -- 937
+text.length$ -- 20
 text.prefix$ -- 0
 top$ -- 5
-type$ -- 23
-warning$ -- 0
-while$ -- 68
-width$ -- 25
-write$ -- 227
+type$ -- 25
+warning$ -- 1
+while$ -- 70
+width$ -- 27
+write$ -- 244
+(There was 1 warning)
