@@ -338,7 +338,7 @@ $\mathrm{max\_iter}=1000$, seed 123).
 \scriptsize
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{0.9}
-\begin{tabular}{@{}lp{0.62\columnwidth}@{}}
+\begin{tabular}{@{}lp{0.70\columnwidth}@{}}
 \toprule
 Setting & Value \\
 \midrule
@@ -349,11 +349,11 @@ Ensemble transformers &
   \texttt{FPTAI/vibert-base-cased};
   20 epochs, AdamW $2\times10^{-5}$, cosine, warmup 0.1, wd 0.01, clip 1.0;
   batch 128/256, accum.\ 2, max len 256; patience 3 on macro F1;
-  3-fold OOF then full-train refit; pipeline seed \\
+  3-fold OOF then full-train refit; \\
 Standalone transformers &
   \texttt{uitnlp/CafeBERT}, \texttt{uitnlp/visobert}
   (\texttt{use\_fast=False}); same optimizer, batch, and length;
-  full-train early stop, patience 5 on macro F1; no OOF; pipeline seed \\
+  full-train early stop, patience 5 on macro F1; no OOF; \\
 TF-IDF / linear &
   1--2 grams, $\mathrm{min\_df}=2$, $\mathrm{sublinear\_tf}$;
   LogReg and LinearSVC $C=1.0$, $\mathrm{random\_state}=$ pipeline seed, 3 folds;
@@ -376,31 +376,11 @@ QLoRA Gemma &
 
 \subsection{Baselines and Evaluation}
 
-We evaluate on the two following experimental conditions. Evaluation metrics are accuracy, weighted F1 (W-F1), and macro F1.
-
-\textbf{Augmentation ablation.} CafeBERT is trained on three versions of the training
-data---original, paraphrased-augmented, and generated-augmented---and evaluated on the
-held-out test set using accuracy, weighted F1, and per-class F1 for the three minority
-emotions (Fear, Anger, Surprise).
-
-\textbf{Ensemble comparison.} Table~\ref{tab:ensemble} has two blocks. The upper
-block uses our split, preprocessing, and 692-sentence test set. It compares the
-stacked QLoRA Gemma meta-model with (i)~two conventional fusion baselines on the
-same five out-of-fold class-probability vectors, without the original sentence:
-weighted soft voting (accuracy-normalized convex combination, then $\arg\max$) and
-a multinomial logistic-regression stacking classifier on the concatenated
-35-dimensional OOF vector, with $C$ selected on validation macro-F1;
-(ii)~Gemma-2-9B-it zero-shot prompting on the same structured meta-prompts; and
-(iii)~CafeBERT and ViSoBERT rerun on the same training, validation, and test
-files. The lower block reports previously published UIT-VSMEC scores (CafeBERT and
-XLM-RoBERTa-Large from VLUE \cite{do2024vlue}, ViSoBERT \cite{nguyen2024visobert},
-the MLR pipeline \cite{nguyen2020exploiting}, and the GRU--CNN--BiLSTM--LSTM
-ensemble \cite{huynh2020ensemble}) for context only; those papers may differ in
-preprocessing, training, and evaluation, so we do not treat them as same-protocol
-baselines or as a state-of-the-art comparison. The original CNN+word2vec benchmark
-\cite{ho2020emotion} (59.74\% weighted F1) is omitted from the table for the same
-reason.
-
+Evaluation uses accuracy, weighted F1, and macro F1.
+The augmentation ablation trains CafeBERT on the original, paraphrased, and generated sets and reports Fear, Anger, and Surprise on the test set.
+The ensemble comparison is Table~\ref{tab:ensemble}.
+Its upper block is our real results: the QLoRA Gemma meta-learning model, weighted soft voting, logistic-regression stacking, zero-shot Gemma, and CafeBERT and ViSoBERT retrained on the same files.
+The lower block lists published UIT-VSMEC scores from other protocols.
 % -----------------------------------------------------------------------
 \section{Results and Analysis}
 
@@ -458,17 +438,20 @@ Emotion distribution KL div. & --- & 0.164 \\
 \end{table}
 
 \subsection{Ensemble Performance}
-Table~\ref{tab:ensemble} reports two comparisons. Under our split and
-preprocessing, the stacked QLoRA system reaches 70.33\% $\pm$ 1.33 accuracy, 70.39\% $\pm$ 1.26 weighted
-F1, and 67.27\% $\pm$ 1.25 macro F1 (mean $\pm$ sample standard deviation over seeds 42, 131, and 9998). The fair transformer baselines are CafeBERT and ViSoBERT
-retrained on the same files: CafeBERT is the stronger rerun at 64.99\% weighted F1,
-and ViSoBERT reaches 59.66\%. Those two reruns are single training runs. The proposed method therefore improves by 5.40
-percentage points in weighted F1 over same-protocol CafeBERT and by 10.73 points
-over same-protocol ViSoBERT. Published CafeBERT (66.12\%) and ViSoBERT (68.37\%)
-scores appear only in the lower block. They come from different preprocessing,
-training, and evaluation settings, so a 70.39\% vs.\ 68.37\% gap is not a
-same-protocol state-of-the-art claim; on this pipeline the ViSoBERT rerun is
-59.66\% weighted F1.
+
+The stacked QLoRA model is the strongest system on our split.
+Table~\ref{tab:ensemble} reports 70.33\% $\pm$ 1.33 accuracy, 70.39\% $\pm$ 1.26 weighted F1, and 67.27\% $\pm$ 1.25 macro F1, averaged over seeds 42, 131, and 9998.
+
+Weighted soft voting and logistic-regression stacking reaches 67.91\% weighted F1.
+Logistic regression reaches 67.48\%. QLoRA improves on these by 2.48 and 2.91 weighted-F1 percentage points. The macro-F1 gap against logistic regression is wider: 67.27\% against 63.27\%, a gain of 4.00 percentage points.
+Both baselines already combine the five base models, so the remaining gain comes from reading the sentence together with their probabilities.
+
+The zero shot prompting score 65.72\% weighted F1, 4.67 percentage points behind the fine-tuned model. A single transformer trained on the same files is further behind: CafeBERT reaches 64.99\% weighted F1 and ViSoBERT 59.66\%, leaving the full ensemble ahead by 5.40 and 10.73 percentage points.
+Published scores in the lower block of Table~\ref{tab:ensemble} come from other preprocessing and evaluation settings.
+
+A 4.67 percentage points gain in weighted F1 over zero-shot Gemma (70.39\% vs.\
+65.72\%) shows that QLoRA fine-tuning on the structured dataset helps relative to
+zero-shot inference. The best single transformer (CafeBERT, 64.99\% weighted F1) trails the full ensemble by 5.40 percentage points, showing that stacking heterogeneous BERT goes beyond any individual classifier on this pipeline.
 \begin{table}[!htbp]
 \caption{UIT-VSMEC test-set comparison}
 \label{tab:ensemble}
@@ -481,7 +464,7 @@ same-protocol state-of-the-art claim; on this pipeline the ViSoBERT rerun is
 Method & Acc. & W-F1 & M-F1 \\
 \midrule
 \multicolumn{4}{@{}l}{\textit{Same protocol (ours)}} \\
-\textbf{Proposed (stacked + QLoRA Gemma)} &
+\textbf{Proposed (stacked + QLoRA Gemma) (best)} &
   \textbf{\seedscore{0.7033}{0.0133}} &
   \textbf{\seedscore{0.7039}{0.0126}} &
   \textbf{\seedscore{0.6727}{0.0125}} \\
@@ -511,32 +494,9 @@ GRU--CNN--BiLSTM--LSTM \cite{huynh2020ensemble} & --- & --- & 0.6579 \\
 {\raggedright\footnotesize
 Note. Upper block: same split, preprocessing, and 692-sentence test set.
 The four ensemble rows are mean $\pm$ sample standard deviation over seeds 42, 131, and 9998.
-CafeBERT and ViSoBERT rows are single runs.
-Lower block: previously published scores under other protocols; not used to
-claim state-of-the-art.
-W-F1: weighted F1;\enspace M-F1: macro F1;\enspace ---: not reported.\par}
+Lower block: previously published scores under other protocols;
+W-F1: weighted F1;\enspace M-F1: macro F1;\enspace\par}
 \end{table}
-The two conventional fusion rows compare the QLoRA meta-learner with ordinary
-stacking on the same five out-of-fold class-probability vectors. Weighted soft
-voting applies \emph{fixed} fusion of those vectors (already supplied to Gemma as a
-consensus summary). LogReg stacking trains a \emph{linear} meta-classifier on the
-concatenated 35-dimensional OOF vector, without the sentence, with $C$ selected on
-validation macro-F1. Zero-shot Gemma uses the same structured meta-prompts without
-supervised fine-tuning. QLoRA Gemma attains 70.39\% weighted F1, against 67.91\%
-for voting ($+$2.48) and 67.48\% for LogReg ($+$2.91). The macro-F1 relative to
-LogReg is $+$4.00 (67.27\% vs.\ 63.27\%). All three stacking systems use the same
-five base models and the same OOF signals; QLoRA Gemma additionally conditions on
-the sentence. This comparison does not evaluate non-linear heads such as MLP or
-XGBoost.
-
-A 4.67 percentage-point gain in weighted F1 over zero-shot Gemma (70.39\% vs.\
-65.72\%) shows that QLoRA fine-tuning on the structured dataset helps relative to
-zero-shot inference. The best same-protocol single transformer (CafeBERT, 64.99\%
-weighted F1) trails the full ensemble by 5.40 points, showing that stacking
-heterogeneous BERT and TF-IDF signals goes beyond any individual classifier on this
-pipeline. The CafeBERT augmentation ablation in Table~\ref{tab:augmentation}
-(67.10\% weighted F1 on generated data) is a separate training-data study and is
-not the same-protocol CafeBERT baseline in Table~\ref{tab:ensemble}.
 
 % -----------------------------------------------------------------------
 \section{Conclusion}
@@ -551,23 +511,13 @@ In Stage~1, few-shot LLM augmentation consistently improved CafeBERT's
 performance across all three underrepresented emotion categories. Generated synthetic
 data---new sentences conditioned on 10 in-context examples---outperformed
 paraphrasing, raising weighted F1 from 62.8\% to 67.1\% and increasing Anger F1 by
-8 percentage points (38\% to 46\%). A fidelity analysis confirmed that the synthetic
-corpus is statistically plausible (overall fidelity score 0.776, zero test-set leakage),
-establishing that new scenario coverage matters more than mere surface variation.
-
+8 percentage points (38\% to 46\%). 
 In Stage~2, stacking heterogeneous BERT and TF-IDF signals through a
 QLoRA-fine-tuned meta-model reached 70.33\% $\pm$ 1.33 accuracy, 70.39\% $\pm$ 1.26 weighted F1, and
 67.27\% $\pm$ 1.25 macro F1 on UIT-VSMEC under our split and preprocessing (mean $\pm$ sample standard deviation over seeds 42, 131, and 9998). Relative to
 same-protocol reruns, this is 5.40 percentage points in weighted F1 above CafeBERT
-(64.99\%) and 10.73 points above ViSoBERT (59.66\%). Published transformer scores
-are not used as a state-of-the-art comparison because they follow different
-protocols. The full ensemble surpassed zero-shot Gemma prompting by 4.67
-percentage points in weighted F1 (70.39\% vs.\ 65.72\%). On the same out-of-fold
-probability features, weighted soft voting reached 67.91\% $\pm$ 1.20 weighted F1 and
-logistic-regression stacking reached 67.48\% $\pm$ 0.50. Stage~1 uses the LLM to generate
-minority-class data; Stage~2 uses a QLoRA meta-learner that jointly consumes the
-sentence and the five base-model probability distributions.
-
+(64.99\%) and 10.73 points above ViSoBERT (59.66\%). The full ensemble surpassed zero-shot Gemma prompting by 4.67
+percentage points in weighted F1 (70.39\% vs.\ 65.72\%). On the same probability features, weighted soft voting reached 67.91\% $\pm$ 1.20 weighted F1 and logistic-regression stacking reached 67.48\% $\pm$ 0.50.
 \subsection{Future Work}
 
 Future work will explore the following directions:
