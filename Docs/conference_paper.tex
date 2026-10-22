@@ -446,12 +446,12 @@ Weighted soft voting and logistic-regression stacking reaches 67.91\% weighted F
 Logistic regression reaches 67.48\%. QLoRA improves on these by 2.48 and 2.91 weighted-F1 percentage points. The macro-F1 gap against logistic regression is wider: 67.27\% against 63.27\%, a gain of 4.00 percentage points.
 Both baselines already combine the five base models, so the remaining gain comes from reading the sentence together with their probabilities.
 
-The zero shot prompting score 65.72\% weighted F1, 4.67 percentage points behind the fine-tuned model. A single transformer trained on the same files is further behind: CafeBERT reaches 64.99\% weighted F1 and ViSoBERT 59.66\%, leaving the full ensemble ahead by 5.40 and 10.73 percentage points.
+The zero shot prompting score 65.72\% weighted F1, 4.67 percentage points behind the fine-tuned model. A single transformer trained on the same files is further behind: CafeBERT reaches 65.10\% $\pm$ 0.40 weighted F1 and ViSoBERT 58.05\% $\pm$ 0.54, leaving the full ensemble ahead by 5.29 and 12.34 percentage points.
 Published scores in the lower block of Table~\ref{tab:ensemble} come from other preprocessing and evaluation settings.
 
 A 4.67 percentage points gain in weighted F1 over zero-shot Gemma (70.39\% vs.\
 65.72\%) shows that QLoRA fine-tuning on the structured dataset helps relative to
-zero-shot inference. The best single transformer (CafeBERT, 64.99\% weighted F1) trails the full ensemble by 5.40 percentage points, showing that stacking heterogeneous BERT goes beyond any individual classifier on this pipeline.
+zero-shot inference. The best single transformer (CafeBERT, 65.10\% $\pm$ 0.40 weighted F1) trails the full ensemble by 5.29 percentage points, showing that stacking heterogeneous BERT goes beyond any individual classifier on this pipeline.
 \begin{table}[!htbp]
 \caption{UIT-VSMEC test-set comparison}
 \label{tab:ensemble}
@@ -480,8 +480,14 @@ Gemma zero-shot (ours) &
   \seedscore{0.6618}{0.0029} &
   \seedscore{0.6572}{0.0029} &
   \seedscore{0.6172}{0.0010} \\
-CafeBERT, same split (ours)               & 0.6474 & 0.6499 & 0.6142 \\
-ViSoBERT, same split (ours)               & 0.5997 & 0.5966 & 0.5604 \\
+CafeBERT(ours reproduce result) &
+  \seedscore{0.6522}{0.0058} &
+  \seedscore{0.6510}{0.0040} &
+  \seedscore{0.6207}{0.0047} \\
+ViSoBERT(ours reproduce result) &
+  \seedscore{0.5785}{0.0060} &
+  \seedscore{0.5805}{0.0054} &
+  \seedscore{0.5427}{0.0073} \\
 \midrule
 \multicolumn{4}{@{}l}{\textit{Published scores (different protocol)}} \\
 MLR + preprocessing \cite{nguyen2020exploiting} & 0.6436 & 0.6440 & --- \\
@@ -493,7 +499,7 @@ GRU--CNN--BiLSTM--LSTM \cite{huynh2020ensemble} & --- & --- & 0.6579 \\
 \end{tabular}\\[2pt]
 {\raggedright\footnotesize
 Note. Upper block: same split, preprocessing, and 692-sentence test set.
-The four ensemble rows are mean $\pm$ sample standard deviation over seeds 42, 131, and 9998.
+Every upper-block row, including CafeBERT and ViSoBERT, is the mean $\pm$ sample standard deviation over seeds 42, 131, and 9998.
 Lower block: previously published scores under other protocols;
 W-F1: weighted F1;\enspace M-F1: macro F1;\enspace\par}
 \end{table}
@@ -515,8 +521,8 @@ paraphrasing, raising weighted F1 from 62.8\% to 67.1\% and increasing Anger F1 
 In Stage~2, stacking heterogeneous BERT and TF-IDF signals through a
 QLoRA-fine-tuned meta-model reached 70.33\% $\pm$ 1.33 accuracy, 70.39\% $\pm$ 1.26 weighted F1, and
 67.27\% $\pm$ 1.25 macro F1 on UIT-VSMEC under our split and preprocessing (mean $\pm$ sample standard deviation over seeds 42, 131, and 9998). Relative to
-same-protocol reruns, this is 5.40 percentage points in weighted F1 above CafeBERT
-(64.99\%) and 10.73 points above ViSoBERT (59.66\%). The full ensemble surpassed zero-shot Gemma prompting by 4.67
+same-protocol reruns, this is 5.29 percentage points in weighted F1 above CafeBERT
+(65.10\% $\pm$ 0.40) and 12.34 points above ViSoBERT (58.05\% $\pm$ 0.54). The full ensemble surpassed zero-shot Gemma prompting by 4.67
 percentage points in weighted F1 (70.39\% vs.\ 65.72\%). On the same probability features, weighted soft voting reached 67.91\% $\pm$ 1.20 weighted F1 and logistic-regression stacking reached 67.48\% $\pm$ 0.50.
 \subsection{Future Work}
 
