@@ -8,6 +8,8 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: references.bib
+Warning--entry type for "Chase_LangChain_2022" isn't style-file defined
+--line 226 of file references.bib
 -- IEEEtran.bst version 1.14 (2015/08/26) by Michael Shell.
 -- http://www.michaelshell.org/tex/ieeetran/bibtex/
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
@@ -16,37 +18,37 @@ Warning--empty journal in gemma_2024
 Done.
 You've used 23 entries,
             4087 wiz_defined-function locations,
-            935 strings with 12815 characters,
-and the built_in function-call counts, 16463 in all, are:
-= -- 1237
-> -- 500
+            937 strings with 12556 characters,
+and the built_in function-call counts, 16096 in all, are:
+= -- 1226
+> -- 463
 < -- 103
-+ -- 259
-- -- 99
-* -- 787
-:= -- 2424
++ -- 241
+- -- 90
+* -- 764
+:= -- 2397
 add.period$ -- 46
 call.type$ -- 23
 change.case$ -- 23
 chr.to.int$ -- 249
 cite$ -- 24
-duplicate$ -- 1214
-empty$ -- 1397
-format.name$ -- 121
-if$ -- 3839
+duplicate$ -- 1188
+empty$ -- 1361
+format.name$ -- 111
+if$ -- 3745
 int.to.chr$ -- 0
 int.to.str$ -- 23
-missing$ -- 231
-newline$ -- 94
+missing$ -- 222
+newline$ -- 96
 num.names$ -- 23
-pop$ -- 602
+pop$ -- 577
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 2
-skip$ -- 1259
+skip$ -- 1233
 stack$ -- 0
 substring$ -- 609
-swap$ -- 904
+swap$ -- 884
 text.length$ -- 20
 text.prefix$ -- 0
 top$ -- 5
@@ -54,5 +56,5 @@ type$ -- 23
 warning$ -- 1
 while$ -- 68
 width$ -- 25
-write$ -- 228
-(There was 1 warning)
+write$ -- 230
+(There were 2 warnings)

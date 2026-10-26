@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.10.16)  22 OCT 2026 01:18
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.10.16)  24 OCT 2026 12:35
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -613,135 +613,173 @@ File: tikzlibraryfit.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 File: tikzlibrarybackgrounds.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 \pgf@layerbox@background=\box70
 \pgf@layerboxsaved@background=\box71
-) (/usr/local/texlive/2026/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/pgfplots/pgfplots.sty (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/pgfplots.revision.tex)
+Package: pgfplots 2025/08/14 v1.18.2 Data Visualization (1.18.2)
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/pgfplots.code.tex (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/pgfplotscore.code.tex
+\t@pgfplots@toka=\toks40
+\t@pgfplots@tokb=\toks41
+\t@pgfplots@tokc=\toks42
+\pgfplots@tmpa=\dimen307
+\c@pgfplots@coordindex=\count329
+\c@pgfplots@scanlineindex=\count330
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/sys/pgfplotssysgeneric.code.tex)) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/libs/pgfplotslibrary.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/oldpgfcompatib/pgfplotsoldpgfsupp_loader.code.tex (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/libraries/pgflibraryfpu.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/oldpgfcompatib/pgfplotsoldpgfsupp_pgfutil-common-lists.tex)) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/util/pgfplotsutil.code.tex (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsliststructure.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsliststructureext.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsarray.code.tex
+\c@pgfplotsarray@tmp=\count331
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsmatrix.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/numtable/pgfplotstableshared.code.tex
+\c@pgfplotstable@counta=\count332
+\t@pgfplotstable@a=\toks43
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsdeque.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/util/pgfplotsbinary.code.tex (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/util/pgfplotsbinary.data.code.tex)) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/util/pgfplotsutil.verb.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/libs/pgflibrarypgfplots.surfshading.code.tex
+\c@pgfplotslibrarysurf@no=\count333
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/sys/pgflibrarypgfplots.surfshading.pgfsys-pdftex.def))) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/util/pgfplotscolormap.code.tex (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/util/pgfplotscolor.code.tex)) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/pgfplotsstackedplots.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/pgfplotsplothandlers.code.tex (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/pgfplotsmeshplothandler.code.tex (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/pgfplotsmeshplotimage.code.tex))) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/pgfplots.scaling.code.tex)
+(/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/pgfplotscoordprocessing.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/pgfplots.errorbars.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/pgfplots.markers.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/pgfplotsticks.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/pgfplots.paths.code.tex) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarydecorations.code.tex (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/modules/pgfmoduledecorations.code.tex
+\pgfdecoratedcompleteddistance=\dimen308
+\pgfdecoratedremainingdistance=\dimen309
+\pgfdecoratedinputsegmentcompleteddistance=\dimen310
+\pgfdecoratedinputsegmentremainingdistance=\dimen311
+\pgf@decorate@distancetomove=\dimen312
+\pgf@decorate@repeatstate=\count334
+\pgfdecorationsegmentamplitude=\dimen313
+\pgfdecorationsegmentlength=\dimen314
+)
+\tikz@lib@dec@box=\box72
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarydecorations.pathmorphing.code.tex (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/libraries/decorations/pgflibrarydecorations.pathmorphing.code.tex)) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarydecorations.pathreplacing.code.tex (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/libraries/decorations/pgflibrarydecorations.pathreplacing.code.tex)) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgfplots/libs/tikzlibrarypgfplots.contourlua.code.tex)
+\pgfplots@numplots=\count335
+\pgfplots@xmin@reg=\dimen315
+\pgfplots@xmax@reg=\dimen316
+\pgfplots@ymin@reg=\dimen317
+\pgfplots@ymax@reg=\dimen318
+\pgfplots@zmin@reg=\dimen319
+\pgfplots@zmax@reg=\dimen320
+) (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibraryplotmarks.code.tex
+File: tikzlibraryplotmarks.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/pgf/libraries/pgflibraryplotmarks.code.tex
+File: pgflibraryplotmarks.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+))) (/usr/local/texlive/2026/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count329
+\l__color_backend_stack_int=\count336
 ) (./conference_paper.aux)
 \openout1 = `conference_paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 27.
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 27.
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 27.
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 27.
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 27.
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 27.
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 27.
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for T5/cmr/m/n on input line 27.
-LaTeX Font Info:    Trying to load font information for T5+cmr on input line 27.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for T5/cmr/m/n on input line 29.
+LaTeX Font Info:    Trying to load font information for T5+cmr on input line 29.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/vntex/t5cmr.fd
 File: t5cmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    ... okay on input line 29.
 
 -- Lines per column: 56 (exact).
 (/usr/local/texlive/2026/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count330
-\scratchdimen=\dimen307
-\scratchbox=\box72
-\nofMPsegments=\count331
-\nofMParguments=\count332
-\everyMPshowfont=\toks40
-\MPscratchCnt=\count333
-\MPscratchDim=\dimen308
-\MPnumerator=\count334
-\makeMPintoPDFobject=\count335
-\everyMPtoPDFconversion=\toks41
+\scratchcounter=\count337
+\scratchdimen=\dimen321
+\scratchbox=\box73
+\nofMPsegments=\count338
+\nofMParguments=\count339
+\everyMPshowfont=\toks44
+\MPscratchCnt=\count340
+\MPscratchDim=\dimen322
+\MPnumerator=\count341
+\makeMPintoPDFobject=\count342
+\everyMPtoPDFconversion=\toks45
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-LaTeX Font Info:    Calculating math sizes for size <11> on input line 47.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 47.
- (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
+Package pgfplots notification 'compat/show suggested version=true': document has been generated with the most recent feature set (\pgfplotsset{compat=1.18}).
+
+LaTeX Font Info:    Calculating math sizes for size <11> on input line 48.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 48.
+(/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 47.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 48.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Calculating math sizes for size <7.69997> on input line 47.
+LaTeX Font Info:    Calculating math sizes for size <7.69997> on input line 48.
  [1{/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/vntex/t5.enc}
 
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 237--237
+Underfull \hbox (badness 10000) in paragraph at lines 227--227
 []\T5/ptm/m/n/8 Key
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 239--240
+Underfull \hbox (badness 10000) in paragraph at lines 229--230
 []\T5/ptm/m/n/8 Semantic equiv-a-lence
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 239--240
+Underfull \hbox (badness 10000) in paragraph at lines 229--230
 \T5/ptm/m/n/8 or in-ten-sity; pre-serve
  []
 
 
-Overfull \hbox (6.35815pt too wide) in paragraph at lines 225--245
+Overfull \hbox (6.35815pt too wide) in paragraph at lines 215--235
+ [][] 
+ []
+
+
+Overfull \hbox (1.86633pt too wide) in paragraph at lines 242--256
  [][] 
  []
 
 [2]
-Overfull \hbox (1.86633pt too wide) in paragraph at lines 252--266
- [][] 
- []
-
-LaTeX Font Info:    Trying to load font information for T5+pcr on input line 286.
-(/usr/local/texlive/2026/texmf-dist/tex/latex/vntex/t5pcr.fd
+LaTeX Font Info:    Trying to load font information for T5+pcr on input line 268.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/vntex/t5pcr.fd
 File: t5ucr.fd 2005/08/24 Fontinst v1.929 font definitions for T5/pcr.
-) [3]
-Underfull \hbox (badness 10000) in paragraph at lines 348--353
+)
+Underfull \hbox (badness 10000) in paragraph at lines 328--333
 []\T5/pcr/m/n/7 vinai/phobert-base-v2\T5/ptm/m/n/7 , \T5/pcr/m/n/7 uitnlp/CafeBERT\T5/ptm/m/n/7 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 348--353
+Underfull \hbox (badness 10000) in paragraph at lines 328--333
 \T5/pcr/m/n/7 FPTAI/vibert-base-cased\T5/ptm/m/n/7 ; 20 epochs, AdamW
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 354--357
+Underfull \hbox (badness 10000) in paragraph at lines 334--336
 []\T5/pcr/m/n/7 uitnlp/CafeBERT\T5/ptm/m/n/7 , \T5/pcr/m/n/7 uitnlp/visobert
  []
 
-
-Underfull \hbox (badness 3646) in paragraph at lines 445--448
+[3]
+Underfull \hbox (badness 3646) in paragraph at lines 438--441
 []\T5/ptm/m/n/10 Weighted soft vot-ing and logistic-regression stack-ing
  []
 
 
-Underfull \hbox (badness 1946) in paragraph at lines 445--448
+Underfull \hbox (badness 1946) in paragraph at lines 438--441
 \T5/ptm/m/n/10 67.48%. QLoRA im-proves on these by 2.48 and 2.91
  []
 
-[4]
-Underfull \hbox (badness 1515) in paragraph at lines 516--527
-\T5/ptm/m/n/10 proved CafeBERT's per-for-mance across all three un-der-
- []
-
-
-Underfull \hbox (badness 1371) in paragraph at lines 516--527
-\T5/ptm/m/n/10 new sen-tences con-di-tioned on 10 in-context examples---
- []
-
-(./conference_paper.bbl
+[4] (./conference_paper.bbl
 Underfull \hbox (badness 3525) in paragraph at lines 46--48
 []\T5/ptm/m/n/8 G. Team, ``Gemma,'' 2024. [On-line]. Avail-able:
  []
 
-[5])
+
+Underfull \hbox (badness 2126) in paragraph at lines 84--86
+[]\T5/ptm/m/n/8 H. Chase, ``LangChain,'' 2022. [On-line]. Avail-able:
+ []
+
+)
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -753,27 +791,25 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[6
-
-] (./conference_paper.aux)
+[5] (./conference_paper.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 16138 strings out of 467525
- 324193 string characters out of 5418981
- 736231 words of memory out of 5000000
- 44765 multiletter control sequences out of 15000+600000
+ 26106 strings out of 467525
+ 663218 string characters out of 5418981
+ 1229172 words of memory out of 5000000
+ 54597 multiletter control sequences out of 15000+600000
  763878 words of font info for 165 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,16n,94p,1306b,843s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/ucrr8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmb8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmbi8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmr8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmri8v.pfb>
-Output written on conference_paper.pdf (6 pages, 219699 bytes).
+ 84i,16n,94p,1447b,855s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/ucrr8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmb8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmbi8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmr8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/urwvn/utmri8v.pfb>
+Output written on conference_paper.pdf (5 pages, 245823 bytes).
 PDF statistics:
- 102 PDF objects out of 1000 (max. 8388607)
- 63 compressed objects within 1 object stream
+ 114 PDF objects out of 1000 (max. 8388607)
+ 70 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

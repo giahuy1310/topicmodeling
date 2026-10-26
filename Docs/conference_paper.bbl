@@ -64,9 +64,6 @@ Q.-N. Nguyen, T.~C. Phan, D.-V. Nguyen, and K.~V. Nguyen, ``{ViSoBERT}: A pre-tr
 \bibitem{huynh2020ensemble}
 H.~D. Huynh, H.~T.-T. Do, K.~V. Nguyen, and N.~L.-T. Nguyen, ``A simple and efficient ensemble classifier combining multiple neural network models on social media datasets in {Vietnamese},'' in \emph{Proceedings of the 34th Pacific Asia Conference on Language, Information and Computation (PACLIC 2020)}, 2020, pp. 420--429.
 
-\bibitem{ding2024augmentation}
-B.~Ding, C.~Qin, R.~Zhao, T.~Luo, X.~Li, G.~Chen, W.~Xia, J.~Hu, A.~T. Luu, and S.~Joty, ``Data augmentation using large language models: Data perspectives, learning paradigms and challenges,'' in \emph{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (ACL 2024)}, 2024.
-
 \bibitem{ubani2023zeroshotdataaug}
 S.~Ubani, S.~O. Polat, and R.~D. Nielsen, ``{ZeroShotDataAug}: Generating and augmenting training data with {ChatGPT},'' in \emph{Proceedings of the 18th Workshop on Innovative Use of NLP for Building Educational Applications (BEA 2023)}, 2023, pp. 349--362.
 
@@ -81,6 +78,11 @@ D.~V. Thin, D.~N. Hao, and N.~L.-T. Nguyen, ``A study of {Vietnamese} sentiment 
 
 \bibitem{thin2024prompt}
 ------, ``Prompt engineering with large language models for {Vietnamese} sentiment classification,'' in \emph{Proceedings of the 38th Pacific Asia Conference on Language, Information and Computation (PACLIC 38)}, 2024, pp. 162--171.
+
+\bibitem{Chase_LangChain_2022}
+\BIBentryALTinterwordspacing
+H.~Chase, ``{LangChain},'' 2022. [Online]. Available: \url{https://github.com/langchain-ai/langchain}
+\BIBentrySTDinterwordspacing
 
 \bibitem{li2025temperature}
 L.~Li, L.~Sleem, N.~Gentile, G.~Nichil, and R.~State, ``Exploring the impact of temperature on large language models: Hot or cold?'' \emph{arXiv preprint arXiv:2506.07295}, 2025.
