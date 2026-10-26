@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex conference_paper"] 1792689138.48837 "conference_paper.aux" "conference_paper.bbl" "conference_paper" 1792841703.73348 0
-  "./references.bib" 1792689138.18489 8542 4cf2ae64d99c55c9486012ad28d37c16 ""
+["bibtex conference_paper"] 1793028941.04256 "conference_paper.aux" "conference_paper.bbl" "conference_paper" 1793028942.74322 0
+  "./references.bib" 1793027949.61995 8542 4cf2ae64d99c55c9486012ad28d37c16 ""
   "/usr/local/texlive/2026/texmf-dist/bibtex/bst/ieeetran/IEEEtran.bst" 1440712899 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "conference_paper.aux" 1792841703.31789 6437 4d2697e5c34ef8ba6f64cbf54aee91cf "pdflatex"
+  "conference_paper.aux" 1793028942.33691 6427 194c92028ee376d6211e1342fe6f479e "pdflatex"
   (generated)
   "conference_paper.bbl"
   "conference_paper.blg"
   (rewritten before read)
-["pdflatex"] 1792841702.14363 "/Users/giahuy/Documents/GitHub/topicmodeling/Docs/conference_paper.tex" "conference_paper.pdf" "conference_paper" 1792841703.73368 0
-  "/Users/giahuy/Documents/GitHub/topicmodeling/Docs/conference_paper.tex" 1792841701.83565 30206 e5a121738c86feaea9f7aa1682c17412 ""
+["pdflatex"] 1793028941.22021 "/Users/giahuy/Documents/GitHub/topicmodeling/Docs/conference_paper.tex" "conference_paper.pdf" "conference_paper" 1793028942.74343 0
+  "/Users/giahuy/Documents/GitHub/topicmodeling/Docs/conference_paper.tex" 1793028938.93668 30180 59d69c791025ddab54ac560d300eb7ff ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/vntex/t5.enc" 1136849721 7824 21ade6c3c7fd67cb4ace8dbc91c53118 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm" 1136768653 2172 fd0c924230362ff848a33632ed45dc23 ""
@@ -209,9 +209,9 @@
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1792177338 3636772 840bd631be414a135249c78ffdd7f35e ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
   "IEEEtran.cls" 1783911010.10883 288304 b67b6fc6c2abb39f9b461923f5199343 ""
-  "conference_paper.aux" 1792841703.31789 6437 4d2697e5c34ef8ba6f64cbf54aee91cf "pdflatex"
-  "conference_paper.bbl" 1792689138.64048 6756 020cc069a8923537849042ba1b53bc3c "bibtex conference_paper"
-  "conference_paper.tex" 1792841701.83565 30206 e5a121738c86feaea9f7aa1682c17412 ""
+  "conference_paper.aux" 1793028942.33691 6427 194c92028ee376d6211e1342fe6f479e "pdflatex"
+  "conference_paper.bbl" 1793028941.216 6756 020cc069a8923537849042ba1b53bc3c "bibtex conference_paper"
+  "conference_paper.tex" 1793028938.93668 30180 59d69c791025ddab54ac560d300eb7ff ""
   (generated)
   "conference_paper.aux"
   "conference_paper.log"

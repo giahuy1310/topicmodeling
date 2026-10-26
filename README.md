@@ -1,33 +1,39 @@
-# Ensemble Learning for Vietnamese Emotion Recognition
+# An LLM-Augmented Stacked Ensemble for Vietnamese Emotion Recognition on Social Media
 
-This repository contains research code for Vietnamese fine-grained emotion recognition, with **ensemble learning** as the main direction.
+This repository is the code for the conference paper [Docs/conference_paper.tex](Docs/conference_paper.tex) ([PDF](Docs/conference_paper.pdf)). The paper studies fine-grained emotion recognition on [UIT-VSMEC](https://nlp.uit.edu.vn/datasets), a seven-class Vietnamese social-media corpus.
 
-The core pipeline is a **stacked ensemble** in [`tm_research/ensemble`](tm_research/ensemble), where multiple base classifiers are combined and refined by a Gemma meta-model. A parallel **VSFC sentiment** pipeline lives under [`tm_research/VSFC_ensemble`](tm_research/VSFC_ensemble). Supporting work includes LLM data augmentation and preprocessing notebooks.
+The reported method has two stages. In Stage 1, Gemini-2.5-Flash generates and paraphrases minority-class sentences with 10-shot prompting. In Stage 2, five base classifiers—PhoBERT, CafeBERT, ViBERT, Logistic Regression, and LinearSVC—produce class probabilities, and a QLoRA-fine-tuned Gemma-2-9B-it meta-model reads the raw sentence together with those five distributions.
+
+On the same split, preprocessing, and 692-sentence test set, averaged over seeds 42, 131, and 9998, the full framework reaches **0.7033 ± 0.0133** accuracy, **0.7039 ± 0.0126** weighted F1, and **0.6727 ± 0.0125** macro F1.
+
+Nguyễn Gia Huy and Nguyễn Thị Thanh Sang. Author details are in the paper.
+
+## Contributions
+
+- An LLM augmentation protocol that generates and paraphrases Vietnamese social-media sentences for minority emotion classes with controlled 10-shot prompting.
+- A stacked ensemble in which QLoRA-fine-tuned Gemma-2-9B-it consumes the raw sentence and the five base-model probability distributions.
 
 ## Project Focus
 
-- **Main topic**: Ensemble learning for Vietnamese emotion classification (UIT-VSMEC) and sentiment classification (UIT-VSFC).
-- **Primary objective**: Improve macro-level and minority-class performance through model combination and meta-learning.
-- **Supporting work**: LLM-based data augmentation, data preprocessing, synthetic-data QA.
+- **Evaluation corpus**: UIT-VSMEC (`Enjoyment`, `Sadness`, `Fear`, `Anger`, `Disgust`, `Surprise`, `Other`).
+- **Stage 1**: Gemini-2.5-Flash minority-class generation and paraphrasing, then shared Vietnamese social-media preprocessing.
+- **Stage 2**: Heterogeneous base models, a structured meta dataset, and QLoRA Gemma-2-9B-it as the meta-model.
+- **Canonical write-up**: [Docs/conference_paper.tex](Docs/conference_paper.tex).
 
 ## Dataset
 
 ### UIT-VSMEC (emotion)
 
-- **Corpus**: [UIT-VSMEC](https://nlp.uit.edu.vn/datasets) (Vietnamese Social Media Emotion Corpus).
+- **Corpus**: [UIT-VSMEC](https://nlp.uit.edu.vn/datasets) (Vietnamese Social Media Emotion Corpus), 6,927 annotated sentences.
 - **Labels**: `Enjoyment`, `Sadness`, `Fear`, `Anger`, `Disgust`, `Surprise`, `Other`.
 - **Working format**: `text` (Vietnamese sentence) and `label` (emotion category).
-
-### UIT-VSFC (sentiment)
-
-- **Corpus**: [UIT-VSFC](https://huggingface.co/datasets/uitnlp/vietnamese_students_feedback) (Vietnamese Students' Feedback Corpus).
-- **Labels**: `negative`, `neutral`, `positive`.
+- **Test set used in the paper**: 692 sentences, shared across the same-protocol comparison.
 
 ---
 
 ## Environment Setup
 
-The pipeline was developed and executed primarily on **Google Colab** with GPU acceleration and high-RAM runtimes. Local execution is possible with equivalent CUDA hardware, but Colab is the documented path.
+The pipeline was developed and executed primarily on **Google Colab** with GPU acceleration and high-RAM runtimes. Local execution is possible with equivalent CUDA hardware, but Colab is the documented path. The paper’s experiments used an NVIDIA A100 80GB GPU.
 
 ### Software dependencies
 
@@ -112,44 +118,41 @@ For `HF_TOKEN`, create a token at [huggingface.co/settings/tokens](https://huggi
 
 **How to run notebooks:** open in Jupyter, VS Code, or Colab; select the appropriate kernel; enable a GPU runtime where required; run cells top-to-bottom. Processed CSVs live under `tm_research/data/processed/` and are **not committed** to git.
 
-Full reproduction details: [`Installation Instruction.tex`](Installation%20Instruction.tex).
+Full reproduction details: [`Installation Instruction.tex`](Installation%20Instruction.tex). Reported scores are the mean ± sample standard deviation over seeds **42**, **131**, and **9998**. Each seed is one full pipeline. Hyperparameters are listed in the paper.
 
 ---
 
-## Minimum Path to Reproduce the VSMEC Ensemble
+## Reproduce the Paper Result
 
-If you only need the headline stacked-ensemble result:
-
-1. Obtain UIT-VSMEC and build `train_1500_final.csv`, `val_final.csv`, `test_final.csv` under `tm_research/data/processed/` (see Stage 1–2 below).
-2. *(Optional)* Run LLM augmentation and preprocessing for augmented training data (Stage 3).
+1. Obtain UIT-VSMEC and place the raw Excel splits under `data/` (see Data retrieval below).
+2. Run LLM augmentation ([`augmentation/Data_Augmentation_LLM.ipynb`](tm_research/augmentation/Data_Augmentation_LLM.ipynb)) so minority classes are filled toward 1,500 examples, then preprocess and export `train_1500_final.csv`, `val_final.csv`, and `test_final.csv` under `tm_research/data/processed/`.
 3. Run ensemble notebooks [`01`](tm_research/ensemble/01_base_phobert_oof.ipynb) → [`07`](tm_research/ensemble/07_evaluate_ensemble.ipynb) sequentially on a GPU machine.
 4. Inspect [`tm_research/ensemble/artifacts/metrics/ensemble_summary.json`](tm_research/ensemble/artifacts/metrics/ensemble_summary.json).
+
+The CafeBERT runs on the original, paraphrased, and generated training sets are the augmentation ablation in the paper. They are separate from the full stacked-ensemble result.
 
 Hyperparameters and artifact layout: [`tm_research/ensemble/WORKFLOW.md`](tm_research/ensemble/WORKFLOW.md).
 
 ---
 
-## VSFC Sentiment Ensemble
+## Additional code (outside the paper)
 
-1. Run [`preprocessing/VSFC_DataPreprocessing.ipynb`](tm_research/preprocessing/VSFC_DataPreprocessing.ipynb) → `data/processed/vsfc/vsfc_{train,val,test}_final.csv`.
-2. Run [`VSFC_ensemble/01`](tm_research/VSFC_ensemble/01_base_phobert_oof.ipynb) → [`07`](tm_research/VSFC_ensemble/07_evaluate_ensemble.ipynb) on a GPU machine.
-3. Optional demo: [`08_demo_ensemble_predict.ipynb`](tm_research/VSFC_ensemble/08_demo_ensemble_predict.ipynb).
-
-Details: [`tm_research/VSFC_ensemble/WORKFLOW.md`](tm_research/VSFC_ensemble/WORKFLOW.md).
+UIT-VSFC sentiment code is extra and is outside the paper’s evaluation. To run it: [`preprocessing/VSFC_DataPreprocessing.ipynb`](tm_research/preprocessing/VSFC_DataPreprocessing.ipynb), then [`VSFC_ensemble/01`](tm_research/VSFC_ensemble/01_base_phobert_oof.ipynb) → [`07`](tm_research/VSFC_ensemble/07_evaluate_ensemble.ipynb), with an optional demo in [`08_demo_ensemble_predict.ipynb`](tm_research/VSFC_ensemble/08_demo_ensemble_predict.ipynb). Details: [`tm_research/VSFC_ensemble/WORKFLOW.md`](tm_research/VSFC_ensemble/WORKFLOW.md). Labels are `negative`, `neutral`, and `positive` ([UIT-VSFC](https://huggingface.co/datasets/uitnlp/vietnamese_students_feedback)).
 
 ---
 
-## End-to-End Pipeline (VSMEC)
+## End-to-End Pipeline
+
+The paper’s pipeline has four stages after the raw corpus is in place: LLM augmentation, text preprocessing, 3-fold base classifiers, and QLoRA Gemma meta-learning.
 
 ```mermaid
 flowchart TD
-  retrieve[Data retrieval UIT-VSMEC] --> preprocess[Data preprocessing]
-  preprocess --> augment[LLM augmentation optional]
-  augment --> clean[Clean and export splits]
-  clean --> ensembleBase[Ensemble base models 01-04]
-  ensembleBase --> metaData[Meta dataset 05]
-  metaData --> lora[LoRA Gemma training 06]
-  lora --> eval[Ensemble evaluation 07]
+  retrieve[UIT-VSMEC] --> augment[LLM augmentation]
+  augment --> preprocess[Text preprocessing]
+  preprocess --> ensembleBase[Base models 3-fold]
+  ensembleBase --> metaData[Structured meta dataset]
+  metaData --> lora[QLoRA Gemma meta-learning]
+  lora --> eval[Final prediction]
 ```
 
 **Canonical ensemble inputs** ([`utils_io.py`](tm_research/ensemble/utils_io.py)):
@@ -162,7 +165,7 @@ Column names are normalized automatically: text from `Sentence_clean` / `Sentenc
 
 ---
 
-### Stage 1 — Data Retrieval
+### Data retrieval
 
 **Sources**
 
@@ -179,35 +182,13 @@ From the raw splits, preprocessing notebooks produce CSVs under `tm_research/dat
 
 ---
 
-### Stage 2 — Data Preprocessing
-
-**Notebooks:**
-
-| Corpus | Notebook |
-| --- | --- |
-| UIT-VSMEC | [`preprocessing/DataPreprocessing.ipynb`](tm_research/preprocessing/DataPreprocessing.ipynb) |
-| UIT-VSFC | [`preprocessing/VSFC_DataPreprocessing.ipynb`](tm_research/preprocessing/VSFC_DataPreprocessing.ipynb) |
-
-**Shared logic:** [`tm_research/text_preprocess.py`](tm_research/text_preprocess.py) (`preprocess_vietnamese_text`)
-
-**What it does:** emoji/emoticon/abbreviation normalization, URL/HTML stripping, deduplication, shuffle (seed 42). Stopwords are intentionally kept for BERT.
-
-**Typical VSMEC I/O** (see [`preprocessing/DataPreprocessing.md`](tm_research/preprocessing/DataPreprocessing.md)):
-
-| | Path |
-| --- | --- |
-| Input | `data/processed/train_1500_para_processed.csv` |
-| Output | `data/processed/train_1500_para_final.csv` |
-
-**Intermediate splits** used by augmentation and ensemble notebooks: `train_org_processed.csv`, `val_processed.csv`, `test_processed.csv`, and `*_final.csv`.
-
----
-
-### Stage 3 — LLM Data Augmentation *(optional)*
+### Stage 1 — LLM data augmentation
 
 **Notebook:** [`augmentation/Data_Augmentation_LLM.ipynb`](tm_research/augmentation/Data_Augmentation_LLM.ipynb)
 
 **Requires:** `GOOGLE_API_KEY` in `tm_research/.env`
+
+Gemini-2.5-Flash adds training examples for emotions below 1,500 sentences, on the raw training split before preprocessing. Two strategies are used: **generated** (new sentences from the emotion label and 10 in-context examples) and **paraphrased** (rewrites that keep the original meaning and emotion). This stage is part of the reported method. CafeBERT trained on the original, paraphrased, and generated sets is the ablation in the paper.
 
 | | Path |
 | --- | --- |
@@ -225,7 +206,31 @@ From the raw splits, preprocessing notebooks produce CSVs under `tm_research/dat
 
 ---
 
-### Stage 4 — Stacked Ensemble + LLM Meta-Model (VSMEC)
+### Stage 2 — Text preprocessing
+
+**Notebooks:**
+
+| Corpus | Notebook |
+| --- | --- |
+| UIT-VSMEC | [`preprocessing/DataPreprocessing.ipynb`](tm_research/preprocessing/DataPreprocessing.ipynb) |
+| UIT-VSFC (extra code) | [`preprocessing/VSFC_DataPreprocessing.ipynb`](tm_research/preprocessing/VSFC_DataPreprocessing.ipynb) |
+
+**Shared logic:** [`tm_research/text_preprocess.py`](tm_research/text_preprocess.py) (`preprocess_vietnamese_text`)
+
+**What it does:** emoji/emoticon/abbreviation normalization, URL/HTML stripping, deduplication, shuffle (seed 42). Stopwords are intentionally kept for BERT.
+
+**Typical VSMEC I/O** (see [`preprocessing/DataPreprocessing.md`](tm_research/preprocessing/DataPreprocessing.md)):
+
+| | Path |
+| --- | --- |
+| Input | `data/processed/train_1500_para_processed.csv` |
+| Output | `data/processed/train_1500_para_final.csv` |
+
+**Intermediate splits** used by augmentation and ensemble notebooks: `train_org_processed.csv`, `val_processed.csv`, `test_processed.csv`, and `*_final.csv`.
+
+---
+
+### Stage 3–4 — Base classifiers and QLoRA meta-model
 
 Run notebooks **in order** under [`tm_research/ensemble/`](tm_research/ensemble/):
 
@@ -246,52 +251,63 @@ Run notebooks **in order** under [`tm_research/ensemble/`](tm_research/ensemble/
 
 High-level flow:
 
-1. Train heterogeneous base models and generate out-of-fold (OOF) probabilities.
-2. Build a stacking/meta dataset from model probabilities and weighted aggregates.
-3. Fine-tune a meta-model (Gemma + LoRA/QLoRA) on structured ensemble signals.
-4. Evaluate ensemble systems against single-model and weighted-average baselines.
+1. Train the five base models with stratified 3-fold cross-validation and write out-of-fold probabilities. Refit each model on the full training set for validation and test probabilities.
+2. Build the structured meta dataset: the sentence, the five distributions, and a validation-accuracy weighted average.
+3. Fine-tune Gemma-2-9B-it with QLoRA on that prompt, with completion-only loss on the emotion label.
+4. Evaluate the meta-model against weighted soft voting, logistic-regression stacking, Gemma zero-shot, and the same-protocol CafeBERT and ViSoBERT runs.
 
 ---
 
-## Experimental Results (thesis)
+## Results
 
-Key reported results from the thesis write-up:
+Scores below are from the paper. Same-protocol numbers are the mean ± sample standard deviation over seeds 42, 131, and 9998 on the 692-sentence UIT-VSMEC test set.
 
-### Minority-class F1 (Fear, Anger, Surprise) with CafeBERT and Gemini-2.5-Flash augmentation
+### LLM augmentation (CafeBERT ablation)
 
-| Setting | Fear | Anger | Surprise |
+| Training data | Accuracy | Weighted F1 | Fear F1 | Anger F1 | Surprise F1 |
+| --- | --- | --- | --- | --- | --- |
+| Original | 0.6344 | 0.628 | 0.67 | 0.38 | 0.60 |
+| Paraphrased | 0.6676 | 0.6682 | 0.67 | 0.42 | 0.61 |
+| **Generated** | **0.6703** | **0.671** | **0.68** | **0.46** | **0.61** |
+
+Generated sentences have fidelity 0.776 and Distinct-2 0.451 (original Distinct-2 is 0.593). Exact and near train–test leakage are both 0.
+
+### Same-protocol comparison
+
+| Method | Accuracy | Weighted F1 | Macro F1 |
 | --- | --- | --- | --- |
-| Original | 67% | 38% | 60% |
-| Paraphrased | 67% | 42% | 61% |
-| Generated | 68% | 46% | 61% |
+| **Proposed (stacked + QLoRA Gemma)** | **0.7033 ± 0.0133** | **0.7039 ± 0.0126** | **0.6727 ± 0.0125** |
+| Weighted soft voting | 0.6792 ± 0.0123 | 0.6791 ± 0.0120 | 0.6423 ± 0.0106 |
+| Logistic-regression stacking | 0.6768 ± 0.0051 | 0.6748 ± 0.0050 | 0.6327 ± 0.0085 |
+| Gemma zero-shot | 0.6618 ± 0.0029 | 0.6572 ± 0.0029 | 0.6172 ± 0.0010 |
+| CafeBERT (reproduced) | 0.6522 ± 0.0058 | 0.6510 ± 0.0040 | 0.6207 ± 0.0047 |
+| ViSoBERT (reproduced) | 0.5785 ± 0.0060 | 0.5805 ± 0.0054 | 0.5427 ± 0.0073 |
 
-### CafeBERT robustness (original vs. augmented training)
+### Published scores (other protocols)
 
-| Training data | Accuracy | Weighted F1 |
-| --- | --- | --- |
-| Original | 0.6344 | 0.628 |
-| Paraphrased augmented | 0.6676 | 0.6682 |
-| Generated augmented | 0.6703 | 0.671 |
+These numbers come from prior papers under different preprocessing and evaluation settings.
 
-### Ensemble vs. baselines (UIT-VSMEC)
-
-| Method | Accuracy | Weighted F1 |
-| --- | --- | --- |
-| **Stacked ensemble + Gemma meta-model (OUR WORK)** | **0.7023** | **0.7022** |
-| CafeBERT + augmented data | 0.6676 | 0.6682 |
-| Gemma zero-shot prompting | 0.6864 | 0.6809 |
-| MLR + preprocessing + key-clause extraction | 0.6436 | 0.6440 |
+| Method | Accuracy | Weighted F1 | Macro F1 |
+| --- | --- | --- | --- |
+| MLR + preprocessing | 0.6436 | 0.6440 | — |
+| CafeBERT | — | 0.6612 | — |
+| ViSoBERT | 0.6810 | 0.6837 | — |
+| XLM-RoBERTa-Large | 0.6137 | 0.6020 | — |
+| GRU–CNN–BiLSTM–LSTM | — | — | 0.6579 |
 
 ---
 
 ## Project Structure
 
 ```text
+Docs/
+  conference_paper.tex         # canonical paper
+  conference_paper.pdf
 tm_research/
-  preprocessing/               # VSMEC + VSFC cleaning notebooks
-  augmentation/                # LLM augmentation + QA eval
+  preprocessing/               # VSMEC cleaning; VSFC notebook is extra
+  augmentation/                # Gemini-2.5-Flash augmentation + QA eval
   ensemble/                    # VSMEC stacked ensemble (01–08) + artifacts/
-  VSFC_ensemble/               # VSFC stacked ensemble (01–08) + artifacts/
+  VSFC_ensemble/               # extra sentiment code, outside the paper
   text_preprocess.py
   eval/vsfc_labels.py
   data/processed/              # runtime CSV splits (not in git)
@@ -302,8 +318,3 @@ README.md
 ```
 
 ---
-
-## Notes
-
-- Ensemble learning is the canonical direction for this project.
-- Further reading: [`augmentation/Data_Augmentation_LLM.md`](tm_research/augmentation/Data_Augmentation_LLM.md), [`preprocessing/DataPreprocessing.md`](tm_research/preprocessing/DataPreprocessing.md), [`ensemble/WORKFLOW.md`](tm_research/ensemble/WORKFLOW.md), [`VSFC_ensemble/WORKFLOW.md`](tm_research/VSFC_ensemble/WORKFLOW.md).
